@@ -1,0 +1,17 @@
+.skills {
+    background-color: white;
+    padding: 20px;
+}
+
+.skills h2 {
+    color: #333;
+}
+
+.skills ul {
+    padding-left: 20px;
+}
+
+.skills li {
+    margin: 8px 0;
+    font-size: 18px;
+}
