@@ -1,0 +1,211 @@
+.about-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 40px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .about-section {
+    padding: 60px 20px;
+  }
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.section-title {
+  font-size: 38px;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+  letter-spacing: -1px;
+  color: #fff;
+}
+
+@media (prefers-color-scheme: light) {
+  .section-title {
+    color: #111827;
+  }
+}
+
+.title-underline {
+  width: 60px;
+  height: 4px;
+  border-radius: 2px;
+  transition: background-color 0.4s ease;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.about-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 16px;
+  padding: 35px;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.about-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+}
+
+/* Light Mode Card Styling */
+@media (prefers-color-scheme: light) {
+  .about-card {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .about-card:hover {
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.main-bio {
+  grid-column: span 2;
+  border-left: 5px solid;
+  transition: border-left-color 0.4s ease;
+}
+
+@media (max-width: 768px) {
+  .main-bio {
+    grid-column: span 1;
+  }
+}
+
+.main-bio h3 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 16px 0;
+  color: #fff;
+}
+
+@media (prefers-color-scheme: light) {
+  .main-bio h3 {
+    color: #111827;
+  }
+}
+
+.main-bio p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #9ca3af;
+  margin: 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .main-bio p {
+    color: #4b5563;
+  }
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  margin-bottom: 24px;
+  transition: all 0.4s ease;
+}
+
+.about-card h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  color: #fff;
+}
+
+@media (prefers-color-scheme: light) {
+  .about-card h3 {
+    color: #111827;
+  }
+}
+
+.school-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 4px 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .school-name {
+    color: #111827;
+  }
+}
+
+.degree {
+  font-size: 14px;
+  color: #9ca3af;
+  margin: 0 0 20px 0;
+}
+
+@media (prefers-color-scheme: light) {
+  .degree {
+    color: #4b5563;
+  }
+}
+
+.timeline-tag {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.4s ease;
+}
+
+.focus-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.focus-list li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+@media (prefers-color-scheme: light) {
+  .focus-list li {
+    color: #4b5563;
+  }
+}
+
+.bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transition: background-color 0.4s ease;
+}
