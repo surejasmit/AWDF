@@ -15,7 +15,6 @@ In this practical, we developed a modern, responsive Single-Page Application (SP
 
 ## 📸 Working Project Screenshots
 
-*Please insert the screenshots of your working project in the designated spaces below:*
 
 ### 1. Homepage & Hero Section
 > <img width="1798" height="855" alt="image" src="https://github.com/user-attachments/assets/7a400406-84dd-4ea8-b13e-8e0b265b0b25" />
