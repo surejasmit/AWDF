@@ -30,7 +30,3 @@ In this practical, we developed a modern, responsive Single-Page Application (SP
 
 ### 4. Categorized Skills Dashboard
 > <img width="1530" height="737" alt="image" src="https://github.com/user-attachments/assets/a78c4a86-9a13-4d60-8f2c-357cce0656c5" />
-
-
-### 5. Contact & Footer Channels
-> **[Insert Footer Section Screenshot here]**
