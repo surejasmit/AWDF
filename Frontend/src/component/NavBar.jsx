@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import './NavBar.css';
 
 const themes = [
@@ -11,6 +12,8 @@ const themes = [
 
 const NavBar = ({ activeSection, themeColor, setThemeColor }) => {
   const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+  const isGithubPage = location.pathname.startsWith('/github');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -89,6 +92,15 @@ const NavBar = ({ activeSection, themeColor, setThemeColor }) => {
             >
               Contact
             </a>
+          </li>
+          <li className="nav-item">
+            <Link
+              to="/github/surejasmit"
+              className={`nav-link ${isGithubPage ? 'active' : ''}`}
+              style={isGithubPage ? { color: themeColor } : {}}
+            >
+              GitHub
+            </Link>
           </li>
         </ul>
 
