@@ -6,11 +6,11 @@ import About from './component/About';
 import Skills from './component/Skills';
 import Footer from './component/Footer';
 import Github from './component/Github';
-import './App.css';
+import Todo  from './component/Todo';
 
 function HomePage({ themeColor, setActiveSection, skillsData, studentInfo }) {
   useEffect(() => {
-    const sections = ['home', 'about', 'skills', 'contact'];
+    const sections = ['home', 'about', 'skills', 'contact','task'];
 
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 120;
@@ -42,6 +42,9 @@ function HomePage({ themeColor, setActiveSection, skillsData, studentInfo }) {
             name={studentInfo.name}
             title={studentInfo.title}
             university={studentInfo.university}
+          />
+           <Todo
+            themeColor={themeColor}
           />
         </section>
 
@@ -112,10 +115,33 @@ function App() {
             skillsData={skillsData}
             studentInfo={studentInfo}
           />
+          
         } />
         <Route path="/github/:username" element={
           <Github themeColor={themeColor} />
         } />
+
+        <Route
+          path="/todo"
+          element={<Todo themeColor={themeColor} />}
+        />
+        <Route
+          path="/todo/:id"
+          element={<Todo themeColor={themeColor} />}
+        />
+        <Route
+          path="/task"
+          element={<Todo themeColor={themeColor} />}
+        />
+        <Route
+          path="/task/all"
+          element={<Todo themeColor={themeColor} />}
+        />
+        <Route
+          path="/task/:id"
+          element={<Todo themeColor={themeColor} />}
+        />
+        
       </Routes>
     </div>
   );

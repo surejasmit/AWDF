@@ -14,7 +14,7 @@ const NavBar = ({ activeSection, themeColor, setThemeColor }) => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const isGithubPage = location.pathname.startsWith('/github');
-
+  const isTaskPage = location.pathname.startsWith('/task') || location.pathname.startsWith('/todo');
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 20) {
@@ -102,7 +102,20 @@ const NavBar = ({ activeSection, themeColor, setThemeColor }) => {
               GitHub
             </Link>
           </li>
+
+          <li className="nav-item">
+            <Link
+              to="/task"
+              className={`nav-link ${isTaskPage ? 'active' : ''}`}
+              style={isTaskPage ? { color: themeColor } : {}}
+            >
+              ToDoapp
+            </Link>
+          </li>
         </ul>
+
+
+
 
         <div className="theme-selector-container">
           <span className="theme-label">Accent:</span>

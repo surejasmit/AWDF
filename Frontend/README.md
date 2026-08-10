@@ -1,16 +1,55 @@
-# React + Vite
+# Portfolio — GitHub Repos Section
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React portfolio app with an iOS-style GitHub repositories page.
 
-Currently, two official plugins are available:
+## Features Added
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### GitHub Repositories Page (`/github/:username`)
 
-## React Compiler
+- Route: `/github/surejasmit`
+- Fetches all public repos via GitHub REST API (`https://api.github.com/users/{username}/repos`)
+- iOS-style grouped table UI (SF font, frosted nav bar, 0.5px separators)
+- Each row shows: repo name, description, language dot, star count, fork badge
+- Rows open the repo in a new tab
+- Loading spinner and error state included
+- Dark mode support (follows `prefers-color-scheme`)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Files changed / added
 
-## Expanding the ESLint configuration
+| File | What |
+|------|------|
+| `src/component/Github.jsx` | New — fetches & renders repos |
+| `src/component/Github.css` | New — iOS-style styles |
+| `src/App.jsx` | Updated — added `<Routes>` with `/` and `/github/:username` |
+| `src/main.jsx` | Updated — wrapped `<App>` in `<BrowserRouter>` |
+| `src/component/NavBar.jsx` | Updated — added "GitHub" nav link |
+| `package.json` | Added `react-router-dom` dependency |
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Screenshots
+
+### Loading State
+
+<!-- screenshot-placeholder: loading-state.png -->
+
+### Repositories List
+
+<!-- screenshot-placeholder: repo-list.png -->
+
+### Error State
+
+<!-- screenshot-placeholder: error-state.png -->
+
+### Dark Mode
+
+<!-- screenshot-placeholder: dark-mode.png -->
+
+---
+
+## Commands
+
+```sh
+npm run dev      # dev server
+npm run build    # production build
+npm run lint     # ESLint
+npm run preview  # preview production build
+```
