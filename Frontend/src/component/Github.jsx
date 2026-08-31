@@ -1,6 +1,7 @@
 import { useReducer, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './Github.css';
+import { saveRepo } from '../firebase';
 
 function reposReducer(state, action) {
   switch (action.type) {
@@ -39,19 +40,32 @@ const Github = ({ themeColor }) => {
     error: null,
   });
 
+  const fetchRepos = async (username) => {
+    const url = `https://api.github.com/users/${username}/repos?sort=updated&per_page=100`;
+    const responce = await fetch(url);
+
+    if (!responce.ok) {
+      throw new Error(`GitHub API error: ${responce.status}`);
+    }
+
+    const data = await responce.json();
+    return data;
+  }
+
   useEffect(() => {
     dispatch({ type: 'FETCH_START' });
 
-    fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=100`)
-      .then((res) => {
-        if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
-        return res.json();
+    fetchRepos(username)
+      .then(async (repos) => {
+        dispatch({ type: 'FETCH_SUCCESS', payload: repos });
+
+        // Save repos to Real-time Database
+        for (const repo of repos) {
+          await saveRepo(repo, repo.id);
+        }
       })
-      .then((data) => {
-        dispatch({ type: 'FETCH_SUCCESS', payload: data });
-      })
-      .catch((err) => {
-        dispatch({ type: 'FETCH_ERROR', payload: err.message });
+      .catch((error) => {
+        dispatch({ type: 'FETCH_ERROR', payload: error.message });
       });
   }, [username]);
 

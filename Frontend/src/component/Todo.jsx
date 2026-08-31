@@ -1,196 +1,293 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import "./Todo.css";
-import { getApiEndpoint, CONFIG } from "../config/config";
+import { getApiEndpoint } from "../config/config";
+import AuthModal from "./AuthModal";
 
-// Parse RTDB response (object with keys or array) into tasks array
+// Parse response into array of tasks
 const parseResponse = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
   if (typeof data === "object") {
     return Object.keys(data).map((key) => ({
       id: key,
-      text: data[key].text || "",
+      title: data[key].title || data[key].text || "",
+      text: data[key].title || data[key].text || "",
       completed: data[key].completed || false,
     }));
   }
   return [];
 };
 
-function Todo() {
+function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
   const [tasks, setTasks] = useState([]);
   const [text, setText] = useState("");
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [localAuthModal, setLocalAuthModal] = useState({ isOpen: false, mode: 'login' });
+  const [currentUser, setCurrentUser] = useState(() => {
+    const saved = localStorage.getItem("auth_user");
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const getAuthToken = () => localStorage.getItem("auth_token");
 
   // Fetch tasks
-  const getTasks = async () => {
+  const getTasks = useCallback(async () => {
+    const token = getAuthToken();
+    if (!token) {
+      setTasks([]);
+      return;
+    }
+
     setLoading(true);
     setError(null);
+
     try {
-      const res = await fetch(getApiEndpoint());
-      if (!res.ok) {
-        if (res.status === 403) {
-          throw new Error("403 Forbidden — Update your Firebase RTDB rules to allow read/write");
-        }
-        throw new Error(`HTTP ${res.status}`);
+      const res = await fetch(getApiEndpoint(), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (res.status === 401) {
+        localStorage.removeItem("auth_token");
+        localStorage.removeItem("auth_user");
+        setCurrentUser(null);
+        window.dispatchEvent(new Event("auth_change"));
+        throw new Error("Session expired. Please log in again.");
       }
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || `HTTP ${res.status}`);
+      }
+
       const data = await res.json();
       setTasks(parseResponse(data));
     } catch (err) {
       console.error("Failed to fetch tasks:", err);
-      setError(`Unable to connect: ${err.message}`);
+      setError(err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
+  // Sync auth state across windows and navbar interactions
   useEffect(() => {
-    let isMounted = true;
-    const fetchInitialTasks = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(getApiEndpoint());
-        if (!res.ok) {
-          if (res.status === 403) {
-            throw new Error("403 Forbidden — Update your Firebase RTDB rules to allow read/write");
-          }
-          throw new Error(`HTTP ${res.status}`);
-        }
-        const data = await res.json();
-        if (isMounted) {
-          setTasks(parseResponse(data));
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.error("Failed to fetch tasks:", err);
-          setError(`Unable to connect: ${err.message}`);
-        }
-      } finally {
-        if (isMounted) setLoading(false);
+    const syncAuth = () => {
+      const saved = localStorage.getItem("auth_user");
+      const user = saved ? JSON.parse(saved) : null;
+      setCurrentUser(user);
+      if (user) {
+        getTasks();
+      } else {
+        setTasks([]);
       }
     };
 
-    fetchInitialTasks();
+    window.addEventListener("storage", syncAuth);
+    window.addEventListener("auth_change", syncAuth);
+
+    return () => {
+      window.removeEventListener("storage", syncAuth);
+      window.removeEventListener("auth_change", syncAuth);
+    };
+  }, [getTasks]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchInitial = async () => {
+      const token = localStorage.getItem("auth_token");
+      if (!token) return;
+
+      try {
+        const res = await fetch(getApiEndpoint(), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (res.status === 401) {
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("auth_user");
+          if (isMounted) {
+            setCurrentUser(null);
+            setTasks([]);
+          }
+          return;
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setTasks(parseResponse(data));
+          }
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.error("Failed to fetch tasks on mount:", err);
+        }
+      }
+    };
+
+    fetchInitial();
     return () => {
       isMounted = false;
     };
   }, []);
 
+  const openAuth = (mode = "login") => {
+    if (onOpenAuth) {
+      onOpenAuth(mode);
+    } else {
+      setLocalAuthModal({ isOpen: true, mode });
+    }
+  };
+
+  // Auth Success Callback
+  const handleAuthSuccess = (data) => {
+    setCurrentUser(data.user);
+    setError(null);
+    getTasks();
+  };
+
+  // Logout Handler
+  const handleLogout = () => {
+    localStorage.removeItem("auth_token");
+    localStorage.removeItem("auth_user");
+    setCurrentUser(null);
+    setTasks([]);
+    setText("");
+    setEditId(null);
+    setError(null);
+    window.dispatchEvent(new Event("auth_change"));
+  };
+
   // Save Task (Create or Update)
   const saveTask = async () => {
-    if (!text.trim()) return;
+    const trimmed = text.trim();
+    if (!trimmed) {
+      setError("Task title is required and cannot be empty.");
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      openAuth("login");
+      setError("Please sign in or create an account to manage tasks.");
+      return;
+    }
+
     setError(null);
 
     try {
-      let updatedTasks = [];
-      if (editId) {
-        updatedTasks = tasks.map((t) =>
-          String(t.id) === String(editId) ? { ...t, text: text.trim() } : t
-        );
-      } else {
-        const newTask = {
-          id: String(Date.now()),
-          text: text.trim(),
-          completed: false,
-        };
-        updatedTasks = [newTask, ...tasks];
+      const endpoint = editId ? getApiEndpoint(editId) : getApiEndpoint();
+      const method = editId ? "PUT" : "POST";
+      const payload = { title: trimmed };
+
+      const res = await fetch(endpoint, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 401) {
+        handleLogout();
+        openAuth("login");
+        throw new Error("Session expired. Please log in again.");
       }
 
-      if (CONFIG.MODE === "firebase_rtdb") {
-        if (editId) {
-          const endpoint = getApiEndpoint(editId);
-          const res = await fetch(endpoint, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text.trim() }),
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        } else {
-          const endpoint = getApiEndpoint();
-          const res = await fetch(endpoint, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ text: text.trim(), completed: false }),
-          });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        }
-      } else {
-        const endpoint = editId ? getApiEndpoint(editId) : getApiEndpoint();
-        const method = editId ? "PUT" : "POST";
-        const res = await fetch(endpoint, {
-          method,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: text.trim() }),
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.message || "Failed to save task.");
       }
 
       setEditId(null);
       setText("");
-      setTasks(updatedTasks);
       getTasks();
     } catch (err) {
       console.error("Failed to save task:", err);
-      if (err.message.includes("403")) {
-        setError("Failed to save: Firebase RTDB rules block writes. Set rules to allow write access.");
-      } else {
-        setError(`Failed to save task: ${err.message}`);
-      }
+      setError(err.message);
     }
   };
 
   // Delete Task
   const deleteTask = async (id) => {
+    const token = getAuthToken();
+    if (!token) {
+      openAuth("login");
+      return;
+    }
+
     setError(null);
     try {
-      const updatedTasks = tasks.filter((t) => String(t.id) !== String(id));
       const endpoint = getApiEndpoint(id);
-      const res = await fetch(endpoint, { method: "DELETE" });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const res = await fetch(endpoint, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      setTasks(updatedTasks);
+      if (res.status === 401) {
+        handleLogout();
+        openAuth("login");
+        throw new Error("Session expired. Please log in again.");
+      }
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to delete task.");
+      }
+
       getTasks();
     } catch (err) {
       console.error("Failed to delete task:", err);
-      setError(`Failed to delete task: ${err.message}`);
+      setError(err.message);
     }
   };
 
   // Toggle Complete Status
   const toggleComplete = async (task) => {
-    try {
-      const updatedTasks = tasks.map((t) =>
-        String(t.id) === String(task.id) ? { ...t, completed: !t.completed } : t
-      );
+    const token = getAuthToken();
+    if (!token) {
+      openAuth("login");
+      return;
+    }
 
-      if (CONFIG.MODE === "firebase_rtdb") {
-        const endpoint = getApiEndpoint(task.id);
-        await fetch(endpoint, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ completed: !task.completed }),
-        });
-      } else {
-        const endpoint = getApiEndpoint(task.id);
-        await fetch(endpoint, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ completed: !task.completed }),
-        });
+    try {
+      const endpoint = getApiEndpoint(task.id);
+      const res = await fetch(endpoint, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ completed: !task.completed }),
+      });
+
+      if (res.status === 401) {
+        handleLogout();
+        openAuth("login");
+        return;
       }
 
-      setTasks(updatedTasks);
       getTasks();
     } catch (err) {
       console.error("Failed to update status:", err);
+      setError(err.message);
     }
   };
 
   // Edit Task
   const editTask = (task) => {
-    setText(task.text);
+    setText(task.title || task.text || "");
     setEditId(task.id);
   };
 
@@ -201,22 +298,64 @@ function Todo() {
 
   return (
     <div className="todo-section">
-      <h2>📋 Task Manager (Firebase Realtime Database)</h2>
+      <div className="todo-header-bar">
+        <h2>📋 Task Management Application</h2>
+
+        <div className="todo-auth-actions">
+          {currentUser ? (
+            <div className="todo-user-badge">
+              <span className="user-greeting">
+                👤 <strong>{currentUser.name}</strong> ({currentUser.email})
+              </span>
+              <button className="todo-auth-btn logout" onClick={handleLogout}>
+                Log Out
+              </button>
+            </div>
+          ) : (
+            <div className="todo-guest-btn-group">
+              <button
+                className="todo-auth-btn login-outline"
+                onClick={() => openAuth("login")}
+              >
+                Sign In
+              </button>
+              <button
+                className="todo-auth-btn login-solid"
+                style={{ backgroundColor: themeColor }}
+                onClick={() => openAuth("register")}
+              >
+                Sign Up
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {!currentUser && (
+        <div className="todo-auth-prompt">
+          <p>🔒 Sign in or Sign up to access your protected tasks securely with JWT authentication.</p>
+        </div>
+      )}
 
       <div className="todo-input-row">
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="What needs to be done?"
+          placeholder={currentUser ? "What needs to be done?" : "Sign in to add a task..."}
+          disabled={!currentUser}
         />
-        <button onClick={saveTask}>
-          {editId ? "Update" : "Add"}
+        <button
+          onClick={saveTask}
+          disabled={!currentUser}
+          style={{ backgroundColor: themeColor }}
+        >
+          {editId ? "Update" : "Add Task"}
         </button>
       </div>
 
       {error && (
-        <div style={{ color: "#ef4444", marginTop: "10px", fontSize: "0.9rem" }}>
+        <div className="todo-error-message">
           ⚠️ {error}
         </div>
       )}
@@ -225,11 +364,16 @@ function Todo() {
 
       <div className="todo-list">
         {loading ? (
-          <div className="todo-empty">Connecting to Firebase database...</div>
+          <div className="todo-empty">Loading tasks...</div>
+        ) : !currentUser ? (
+          <div className="todo-empty">
+            <span>🔐</span>
+            Please sign in or sign up above to view and manage your tasks.
+          </div>
         ) : tasks.length === 0 ? (
           <div className="todo-empty">
             <span>✨</span>
-            No tasks yet — add one above!
+            No tasks yet — create your first task above!
           </div>
         ) : (
           tasks.map((task) => (
@@ -240,10 +384,10 @@ function Todo() {
               <span
                 className="todo-item-text"
                 onClick={() => toggleComplete(task)}
-                title="Click to toggle status"
+                title="Click to toggle completion"
                 style={{ cursor: "pointer" }}
               >
-                {task.text}
+                {task.title || task.text}
               </span>
 
               <div className="todo-actions">
@@ -258,6 +402,17 @@ function Todo() {
           ))
         )}
       </div>
+
+      {/* Fallback local AuthModal if onOpenAuth is not provided */}
+      {!onOpenAuth && (
+        <AuthModal
+          isOpen={localAuthModal.isOpen}
+          initialMode={localAuthModal.mode}
+          onClose={() => setLocalAuthModal({ isOpen: false, mode: 'login' })}
+          onAuthSuccess={handleAuthSuccess}
+          themeColor={themeColor}
+        />
+      )}
     </div>
   );
 }

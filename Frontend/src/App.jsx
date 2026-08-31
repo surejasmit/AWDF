@@ -6,11 +6,12 @@ import About from './component/About';
 import Skills from './component/Skills';
 import Footer from './component/Footer';
 import Github from './component/Github';
-import Todo  from './component/Todo';
+import Todo from './component/Todo';
+import AuthModal from './component/AuthModal';
 
-function HomePage({ themeColor, setActiveSection, skillsData, studentInfo }) {
+function HomePage({ themeColor, setActiveSection, skillsData, studentInfo, onOpenAuth }) {
   useEffect(() => {
-    const sections = ['home', 'about', 'skills', 'contact','task'];
+    const sections = ['home', 'about', 'skills', 'contact', 'task'];
 
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 120;
@@ -43,8 +44,9 @@ function HomePage({ themeColor, setActiveSection, skillsData, studentInfo }) {
             title={studentInfo.title}
             university={studentInfo.university}
           />
-           <Todo
+          <Todo
             themeColor={themeColor}
+            onOpenAuth={onOpenAuth}
           />
         </section>
 
@@ -80,6 +82,15 @@ function HomePage({ themeColor, setActiveSection, skillsData, studentInfo }) {
 function App() {
   const [themeColor, setThemeColor] = useState('#8b5cf6');
   const [activeSection, setActiveSection] = useState('home');
+  const [authModal, setAuthModal] = useState({ isOpen: false, mode: 'login' });
+
+  const handleOpenAuth = (mode = 'login') => {
+    setAuthModal({ isOpen: true, mode });
+  };
+
+  const handleCloseAuth = () => {
+    setAuthModal({ isOpen: false, mode: 'login' });
+  };
 
   const skillsData = [
     { name: 'React.js', level: 90, category: 'Frontend' },
@@ -106,7 +117,9 @@ function App() {
         activeSection={activeSection}
         themeColor={themeColor}
         setThemeColor={setThemeColor}
+        onOpenAuth={handleOpenAuth}
       />
+
       <Routes>
         <Route path="/" element={
           <HomePage
@@ -114,8 +127,8 @@ function App() {
             setActiveSection={setActiveSection}
             skillsData={skillsData}
             studentInfo={studentInfo}
+            onOpenAuth={handleOpenAuth}
           />
-          
         } />
         <Route path="/github/:username" element={
           <Github themeColor={themeColor} />
@@ -123,26 +136,33 @@ function App() {
 
         <Route
           path="/todo"
-          element={<Todo themeColor={themeColor} />}
+          element={<Todo themeColor={themeColor} onOpenAuth={handleOpenAuth} />}
         />
         <Route
           path="/todo/:id"
-          element={<Todo themeColor={themeColor} />}
+          element={<Todo themeColor={themeColor} onOpenAuth={handleOpenAuth} />}
         />
         <Route
           path="/task"
-          element={<Todo themeColor={themeColor} />}
+          element={<Todo themeColor={themeColor} onOpenAuth={handleOpenAuth} />}
         />
         <Route
           path="/task/all"
-          element={<Todo themeColor={themeColor} />}
+          element={<Todo themeColor={themeColor} onOpenAuth={handleOpenAuth} />}
         />
         <Route
           path="/task/:id"
-          element={<Todo themeColor={themeColor} />}
+          element={<Todo themeColor={themeColor} onOpenAuth={handleOpenAuth} />}
         />
-        
       </Routes>
+
+      {/* Global High-End Auth Modal */}
+      <AuthModal
+        isOpen={authModal.isOpen}
+        initialMode={authModal.mode}
+        onClose={handleCloseAuth}
+        themeColor={themeColor}
+      />
     </div>
   );
 }
