@@ -1,27 +1,35 @@
 # AGENTS.md
 
-## Structure
+## Project Structure
 
-All application code lives under `Frontend/`, not the repo root. Run every command from `Frontend/`.
+The project is structured into two main applications:
+- `Frontend/`: React 19 + Vite 8 frontend application.
+- `backend/`: Express 5 + MongoDB (Mongoose) REST API.
+- `docs/`: API & Architecture documentation.
+- `scripts/`: Development and test runner scripts.
 
 ## Commands
 
-All from `Frontend/`:
-
-```
-npm run dev      # Vite dev server
+### Frontend Commands (from `Frontend/`):
+```bash
+npm run dev      # Start Vite dev server (http://localhost:5173)
 npm run build    # Production build (output: dist/)
-npm run lint     # ESLint (JS/JSX only)
+npm run lint     # ESLint check
 npm run preview  # Preview production build
 ```
 
-No test runner, TypeScript, or typecheck is configured.
+### Backend Commands (from `backend/`):
+```bash
+npm start        # Start Express server (http://localhost:5000)
+npm run dev      # Start with file watcher
+npm test         # Run automated API & integration test suite (34 tests)
+```
 
-## Code conventions
+## Architecture & Code Conventions
 
-- Plain JavaScript + JSX (no TypeScript)
-- Vite 8 + React 19
-- ESLint flat config with `react-hooks` and `react-refresh` plugins
-- Components in `src/component/`, each with a co-located `.css` file (e.g. `NavBar.jsx` + `NavBar.css`)
-- No component index files; imports reference files directly
-- All data (skills, student info) is hardcoded in `App.jsx` — no API calls or env vars
+- **Database**: Pure MongoDB via Mongoose. No Firebase.
+- **Authentication**: JWT Bearer token authentication with bcrypt password hashing (10 rounds).
+- **Task Isolation**: Every task database query MUST include `{ user: req.user.id }`.
+- **Frontend**: Plain JavaScript + JSX (no TypeScript), React 19, Vite 8.
+- **Components**: Co-located JSX + CSS in `Frontend/src/component/`.
+- **API Endpoints**: Centralized in `Frontend/src/config/config.js` and `Frontend/src/services/api.js`.

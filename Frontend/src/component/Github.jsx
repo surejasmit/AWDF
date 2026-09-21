@@ -1,7 +1,6 @@
 import { useReducer, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import './Github.css';
-import { saveRepo } from '../firebase';
 
 function reposReducer(state, action) {
   switch (action.type) {
@@ -50,19 +49,14 @@ const Github = ({ themeColor }) => {
 
     const data = await responce.json();
     return data;
-  }
+  };
 
   useEffect(() => {
     dispatch({ type: 'FETCH_START' });
 
     fetchRepos(username)
-      .then(async (repos) => {
+      .then((repos) => {
         dispatch({ type: 'FETCH_SUCCESS', payload: repos });
-
-        // Save repos to Real-time Database
-        for (const repo of repos) {
-          await saveRepo(repo, repo.id);
-        }
       })
       .catch((error) => {
         dispatch({ type: 'FETCH_ERROR', payload: error.message });

@@ -1,23 +1,21 @@
 /**
  * API Configuration for Task Management Application
+ * Pure REST API against Express + MongoDB Backend
  */
 
+const API_BASE = (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_API_BASE_URL)
+  ? import.meta.env.VITE_API_BASE_URL
+  : "http://localhost:5000";
+
 export const CONFIG = {
-  // Backend Express + MongoDB API
-  API_BASE_URL: "http://localhost:5000",
+  API_BASE_URL: API_BASE,
+  HEALTH_ENDPOINT: `${API_BASE}/health`,
   AUTH_ENDPOINTS: {
-    REGISTER: "http://localhost:5000/auth/register",
-    LOGIN: "http://localhost:5000/auth/login",
-    ME: "http://localhost:5000/auth/me",
+    REGISTER: `${API_BASE}/auth/register`,
+    LOGIN: `${API_BASE}/auth/login`,
+    ME: `${API_BASE}/auth/me`,
   },
-  TASKS_ENDPOINT: "http://localhost:5000/tasks",
-  
-  // Firebase fallback if needed
-  FIREBASE: {
-    PROJECT_ID: "awdf-ba2b7",
-    RTDB_BASE_URL: "https://awdf-ba2b7-default-rtdb.firebaseio.com",
-    COLLECTION: "tasks",
-  },
+  TASKS_ENDPOINT: `${API_BASE}/tasks`,
 };
 
 /**
