@@ -32,6 +32,10 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
 
   const getAuthToken = () => localStorage.getItem("auth_token");
 
+  // Auth accent: white + pink for girls, blue for boys
+  const authAccent =
+    currentUser && currentUser.gender === "male" ? "#2563eb" : "#ec4899";
+
   // Fetch tasks
   const getTasks = useCallback(async () => {
     const token = getAuthToken();
@@ -296,32 +300,72 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
     if (e.key === "Enter") saveTask();
   };
 
+  // Separate tasks by status
+  const pendingTasks = tasks.filter((task) => !task.completed);
+  const completedTasks = tasks.filter((task) => task.completed);
+
+  const renderTask = (task) => (
+    <div
+      key={task.id}
+      className={`todo-item ${task.completed ? "completed" : ""}`}
+    >
+      <span
+        className="todo-item-text"
+        onClick={() => toggleComplete(task)}
+        title="Click to toggle completion"
+        style={{ cursor: "pointer" }}
+      >
+        {task.title || task.text}
+      </span>
+
+      <span
+        className={`status-pill ${task.completed ? "is-success" : "is-warning"}`}
+      >
+        <span className="status-dot" aria-hidden="true"></span>
+        {task.completed ? "Completed" : "Pending"}
+      </span>
+
+      <div className="todo-actions">
+        <button className="btn btn-sm btn-ghost" onClick={() => editTask(task)}>
+          Edit
+        </button>
+        <button className="btn btn-sm btn-danger" onClick={() => deleteTask(task.id)}>
+          Delete
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <div className="todo-section">
       <div className="todo-header-bar">
-        <h2>📋 Task Management Application</h2>
+        <div className="todo-heading">
+          <h2>📋 Task Management Application</h2>
+          <p className="todo-subtitle">
+            Create, track and finish your tasks in one place.
+          </p>
+        </div>
 
-        <div className="todo-auth-actions">
+        <div className="todo-auth-actions" style={{ "--todo-auth-accent": authAccent }}>
           {currentUser ? (
             <div className="todo-user-badge">
               <span className="user-greeting">
                 👤 <strong>{currentUser.name}</strong> ({currentUser.email})
               </span>
-              <button className="todo-auth-btn logout" onClick={handleLogout}>
+              <button className="todo-auth-btn logout btn btn-sm" onClick={handleLogout}>
                 Log Out
               </button>
             </div>
           ) : (
             <div className="todo-guest-btn-group">
               <button
-                className="todo-auth-btn login-outline"
+                className="todo-auth-btn login-outline btn btn-sm"
                 onClick={() => openAuth("login")}
               >
                 Sign In
               </button>
               <button
-                className="todo-auth-btn login-solid"
-                style={{ backgroundColor: themeColor }}
+                className="todo-auth-btn login-solid btn btn-sm"
                 onClick={() => openAuth("register")}
               >
                 Sign Up
@@ -330,6 +374,27 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
           )}
         </div>
       </div>
+
+      {currentUser && !loading && (
+        <div className="todo-stats" role="group" aria-label="Task summary">
+          <div className="todo-stat">
+            <span className="todo-stat-label">Total tasks</span>
+            <span className="todo-stat-value">{tasks.length}</span>
+          </div>
+          <div className="todo-stat">
+            <span className="todo-stat-label">Pending</span>
+            <span className="todo-stat-value is-warning">
+              {pendingTasks.length}
+            </span>
+          </div>
+          <div className="todo-stat">
+            <span className="todo-stat-label">Completed</span>
+            <span className="todo-stat-value is-success">
+              {completedTasks.length}
+            </span>
+          </div>
+        </div>
+      )}
 
       {!currentUser && (
         <div className="todo-auth-prompt">
@@ -346,6 +411,7 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
           disabled={!currentUser}
         />
         <button
+          className="btn btn-primary"
           onClick={saveTask}
           disabled={!currentUser}
           style={{ backgroundColor: themeColor }}
@@ -364,7 +430,15 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
 
       <div className="todo-list">
         {loading ? (
-          <div className="todo-empty">Loading tasks...</div>
+          <div
+            className="todo-skeleton-list"
+            role="status"
+            aria-label="Loading tasks"
+          >
+            <div className="todo-skeleton-row skeleton"></div>
+            <div className="todo-skeleton-row skeleton"></div>
+            <div className="todo-skeleton-row skeleton"></div>
+          </div>
         ) : !currentUser ? (
           <div className="todo-empty">
             <span>🔐</span>
@@ -376,30 +450,39 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
             No tasks yet — create your first task above!
           </div>
         ) : (
-          tasks.map((task) => (
-            <div
-              key={task.id}
-              className={`todo-item ${task.completed ? "completed" : ""}`}
-            >
-              <span
-                className="todo-item-text"
-                onClick={() => toggleComplete(task)}
-                title="Click to toggle completion"
-                style={{ cursor: "pointer" }}
-              >
-                {task.title || task.text}
-              </span>
+          <div className="todo-status-sections">
+            <section className="todo-status-section">
+              <header className="todo-status-header pending">
+                <span className="todo-status-icon">⏳</span>
+                <h3>Pending</h3>
+                <span className="todo-status-count">{pendingTasks.length}</span>
+              </header>
+              {pendingTasks.length === 0 ? (
+                <div className="todo-status-empty">
+                  No pending tasks — you're all caught up!
+                </div>
+              ) : (
+                pendingTasks.map(renderTask)
+              )}
+            </section>
 
-              <div className="todo-actions">
-                <button className="todo-btn-edit" onClick={() => editTask(task)}>
-                  Edit
-                </button>
-                <button className="todo-btn-delete" onClick={() => deleteTask(task.id)}>
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))
+            <section className="todo-status-section">
+              <header className="todo-status-header completed">
+                <span className="todo-status-icon">✅</span>
+                <h3>Completed</h3>
+                <span className="todo-status-count">
+                  {completedTasks.length}
+                </span>
+              </header>
+              {completedTasks.length === 0 ? (
+                <div className="todo-status-empty">
+                  No completed tasks yet.
+                </div>
+              ) : (
+                completedTasks.map(renderTask)
+              )}
+            </section>
+          </div>
         )}
       </div>
 
@@ -410,7 +493,6 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
           initialMode={localAuthModal.mode}
           onClose={() => setLocalAuthModal({ isOpen: false, mode: 'login' })}
           onAuthSuccess={handleAuthSuccess}
-          themeColor={themeColor}
         />
       )}
     </div>

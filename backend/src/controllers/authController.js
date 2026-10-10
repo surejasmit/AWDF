@@ -7,8 +7,8 @@ const emailService = require("../services/emailService");
  */
 const register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.validatedUser || req.body;
-    const result = await authService.registerUser({ name, email, password });
+    const { name, email, password, gender } = req.validatedUser || req.body;
+    const result = await authService.registerUser({ name, email, password, gender });
 
     // Send welcome email asynchronously to the new user
     emailService.sendWelcomeEmail(result.user).catch((err) => {

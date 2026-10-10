@@ -17,6 +17,9 @@ build/
 */.env
 */.env.local
 
+# Rendered Kubernetes secrets (only secret.example.yaml is committed)
+k8s/secret.yaml
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

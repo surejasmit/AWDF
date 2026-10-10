@@ -4,13 +4,25 @@ const connectDB = require("./config/db");
 const mongoose = require("mongoose");
 
 const PORT = process.env.PORT || 5000;
+const NODE_ENV = process.env.NODE_ENV || "development";
+
+// Fail fast in production if JWT_SECRET is missing or still the development default
+if (NODE_ENV === "production") {
+  const secret = process.env.JWT_SECRET || "";
+  if (!secret || secret.includes("development")) {
+    console.error(
+      "❌ FATAL: JWT_SECRET must be set to a strong, unique value when NODE_ENV=production."
+    );
+    process.exit(1);
+  }
+}
 
 // Connect to MongoDB
 connectDB();
 
-// Start HTTP Server
-const server = app.listen(PORT, () => {
-  console.log(`🚀 Task Management API server listening on http://localhost:${PORT}`);
+// Start HTTP Server (bound to all interfaces so it is reachable inside containers/pods)
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Task Management API server listening on http://0.0.0.0:${PORT} [${NODE_ENV}]`);
   console.log(`📡 Healthcheck available at: http://localhost:${PORT}/health`);
 });
 

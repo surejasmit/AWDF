@@ -1,4 +1,4 @@
-import './Header.css';
+import './header.css';
 
 const Header = ({ themeColor, name, title, university }) => {
   return (
@@ -25,29 +25,17 @@ const Header = ({ themeColor, name, title, university }) => {
         <div className="hero-cta">
           <a 
             href="#contact" 
-            className="cta-button primary" 
+            className="cta-button primary btn btn-lg"
             style={{ 
               backgroundColor: themeColor,
-              boxShadow: `0 4px 20px ${themeColor}44`
+              boxShadow: `0 12px 28px -14px ${themeColor}66`
             }}
           >
             Get In Touch
           </a>
           <a 
             href="#about" 
-            className="cta-button secondary"
-            style={{ 
-              borderColor: `${themeColor}55`,
-              color: '#fff'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = `${themeColor}15`;
-              e.currentTarget.style.borderColor = themeColor;
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-              e.currentTarget.style.borderColor = `${themeColor}55`;
-            }}
+            className="cta-button secondary btn btn-lg btn-secondary"
           >
             Learn More
           </a>

@@ -22,7 +22,7 @@ const generateToken = (user) => {
 /**
  * Register a new user in MongoDB
  */
-const registerUser = async ({ name, email, password }) => {
+const registerUser = async ({ name, email, password, gender }) => {
   const normalizedEmail = email.toLowerCase().trim();
 
   // Check if user already exists
@@ -38,6 +38,7 @@ const registerUser = async ({ name, email, password }) => {
     name: name.trim(),
     email: normalizedEmail,
     password,
+    ...(gender ? { gender } : {}),
   });
 
   const savedUser = await user.save();

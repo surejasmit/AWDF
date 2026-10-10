@@ -18,7 +18,7 @@ const Footer = ({ themeColor, name, email, github, linkedin }) => {
 
           <a 
             href={`mailto:${email}`} 
-            className="email-button"
+            className="email-button btn btn-lg"
             style={{ 
               backgroundColor: `${themeColor}15`, 
               color: themeColor,
@@ -41,7 +41,7 @@ const Footer = ({ themeColor, name, email, github, linkedin }) => {
               href={github} 
               target="_blank" 
               rel="noreferrer" 
-              className="social-icon"
+              className="social-icon btn btn-sm"
               style={{ '--hover-color': themeColor }}
             >
               GitHub
@@ -50,7 +50,7 @@ const Footer = ({ themeColor, name, email, github, linkedin }) => {
               href={linkedin} 
               target="_blank" 
               rel="noreferrer" 
-              className="social-icon"
+              className="social-icon btn btn-sm"
               style={{ '--hover-color': themeColor }}
             >
               LinkedIn
@@ -58,7 +58,7 @@ const Footer = ({ themeColor, name, email, github, linkedin }) => {
           </div>
         </div>
 
-        <div className="footer-bottom" style={{ borderTopColor: 'rgba(255, 255, 255, 0.05)' }}>
+        <div className="footer-bottom">
           <p className="copyright">
             © {currentYear} {name}. All rights reserved.
           </p>

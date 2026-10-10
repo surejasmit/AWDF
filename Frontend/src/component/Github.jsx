@@ -76,8 +76,9 @@ const Github = ({ themeColor }) => {
       </div>
 
       {loading && (
-        <div className="gh-loading">
+        <div className="gh-loading" role="status" aria-label="Loading repositories">
           <div className="gh-spinner"></div>
+          <span>Loading repositories…</span>
         </div>
       )}
 

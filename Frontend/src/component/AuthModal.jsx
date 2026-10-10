@@ -2,11 +2,37 @@ import { useState } from 'react';
 import './AuthModal.css';
 import { CONFIG } from '../config/config';
 
+// Gender-based palettes: white + pink for girls, white + blue for boys
+const GENDER_THEMES = {
+  female: {
+    accent: '#ec4899',
+    accentHover: '#db2777',
+    accentTint: '#fdf2f8',
+    accentRing: 'rgba(236, 72, 153, 0.16)',
+  },
+  male: {
+    accent: '#2563eb',
+    accentHover: '#1d4ed8',
+    accentTint: '#eff6ff',
+    accentRing: 'rgba(37, 99, 235, 0.16)',
+  },
+};
+
+// Restore the signed-in user's gender so returning users keep their theme
+const readStoredGender = () => {
+  try {
+    const saved = localStorage.getItem('auth_user');
+    const user = saved ? JSON.parse(saved) : null;
+    return user && user.gender === 'male' ? 'male' : 'female';
+  } catch {
+    return 'female';
+  }
+};
+
 function AuthModal({
   isOpen,
   onClose,
   onAuthSuccess,
-  themeColor = '#8b5cf6',
   initialMode = 'login',
 }) {
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
@@ -14,6 +40,7 @@ function AuthModal({
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [gender, setGender] = useState('female');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,6 +53,15 @@ function AuthModal({
   }
 
   if (!isOpen) return null;
+
+  const activeGender = isRegister ? gender : readStoredGender();
+  const theme = GENDER_THEMES[activeGender] || GENDER_THEMES.female;
+  const themeStyle = {
+    '--auth-accent': theme.accent,
+    '--auth-accent-hover': theme.accentHover,
+    '--auth-accent-tint': theme.accentTint,
+    '--auth-accent-ring': theme.accentRing,
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,7 +95,7 @@ function AuthModal({
         : CONFIG.AUTH_ENDPOINTS.LOGIN;
 
       const payload = isRegister
-        ? { name: trimmedName, email: trimmedEmail, password }
+        ? { name: trimmedName, email: trimmedEmail, password, gender }
         : { email: trimmedEmail, password };
 
       const res = await fetch(endpoint, {
@@ -92,9 +128,14 @@ function AuthModal({
     }
   };
 
+  const switchMode = (register) => {
+    setIsRegister(register);
+    setError(null);
+  };
+
   return (
     <div className="auth-overlay" onClick={onClose} role="dialog" aria-modal="true">
-      <div className="auth-card" onClick={(e) => e.stopPropagation()}>
+      <div className="auth-card" style={themeStyle} onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
         <button
           className="auth-close-btn"
@@ -106,10 +147,11 @@ function AuthModal({
 
         {/* Brand Header */}
         <div className="auth-brand">
-          <div className="auth-badge-icon" style={{ backgroundColor: `${themeColor}22`, color: themeColor }}>
-            ⚡
+          <div className="auth-badge-icon">⚡</div>
+          <div className="auth-brand-text">
+            <h3>Task Management</h3>
+            <p>Secure, private and beautifully simple</p>
           </div>
-          <h3>Task Management</h3>
         </div>
 
         {/* Tab Switcher */}
@@ -117,22 +159,14 @@ function AuthModal({
           <button
             type="button"
             className={`auth-tab-btn ${!isRegister ? 'active' : ''}`}
-            onClick={() => {
-              setIsRegister(false);
-              setError(null);
-            }}
-            style={!isRegister ? { borderColor: themeColor, color: '#fff' } : {}}
+            onClick={() => switchMode(false)}
           >
             Sign In
           </button>
           <button
             type="button"
             className={`auth-tab-btn ${isRegister ? 'active' : ''}`}
-            onClick={() => {
-              setIsRegister(true);
-              setError(null);
-            }}
-            style={isRegister ? { borderColor: themeColor, color: '#fff' } : {}}
+            onClick={() => switchMode(true)}
           >
             Sign Up
           </button>
@@ -150,7 +184,7 @@ function AuthModal({
 
         {/* Error Alert */}
         {error && (
-          <div className="auth-error-box">
+          <div className="auth-error-box" role="alert">
             <span className="auth-error-icon">⚠️</span>
             <span>{error}</span>
           </div>
@@ -172,6 +206,44 @@ function AuthModal({
                   required
                   autoFocus={isRegister}
                 />
+              </div>
+            </div>
+          )}
+
+          {isRegister && (
+            <div className="auth-field">
+              <label id="gender-label">I am a</label>
+              <div
+                className="auth-gender-options"
+                role="radiogroup"
+                aria-labelledby="gender-label"
+              >
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={gender === 'female'}
+                  className={`auth-gender-option ${gender === 'female' ? 'selected' : ''}`}
+                  onClick={() => setGender('female')}
+                >
+                  <span className="auth-gender-icon">👧</span>
+                  <span className="auth-gender-copy">
+                    <strong>Girl</strong>
+                    <small>Pink theme</small>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={gender === 'male'}
+                  className={`auth-gender-option ${gender === 'male' ? 'selected' : ''}`}
+                  onClick={() => setGender('male')}
+                >
+                  <span className="auth-gender-icon">👦</span>
+                  <span className="auth-gender-copy">
+                    <strong>Boy</strong>
+                    <small>Blue theme</small>
+                  </span>
+                </button>
               </div>
             </div>
           )}
@@ -210,7 +282,7 @@ function AuthModal({
                 onClick={() => setShowPassword(!showPassword)}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? '👁️' : '👁️‍🗨️'}
+                {showPassword ? '🙈' : '👁️'}
               </button>
             </div>
             {isRegister && (
@@ -221,7 +293,6 @@ function AuthModal({
           <button
             type="submit"
             className="auth-primary-btn"
-            style={{ backgroundColor: themeColor }}
             disabled={loading}
           >
             {loading ? (
@@ -242,11 +313,7 @@ function AuthModal({
               <button
                 type="button"
                 className="auth-link-btn"
-                style={{ color: themeColor }}
-                onClick={() => {
-                  setIsRegister(false);
-                  setError(null);
-                }}
+                onClick={() => switchMode(false)}
               >
                 Sign In
               </button>
@@ -257,11 +324,7 @@ function AuthModal({
               <button
                 type="button"
                 className="auth-link-btn"
-                style={{ color: themeColor }}
-                onClick={() => {
-                  setIsRegister(true);
-                  setError(null);
-                }}
+                onClick={() => switchMode(true)}
               >
                 Sign Up
               </button>

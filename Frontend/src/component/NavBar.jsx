@@ -83,11 +83,14 @@ const NavBar = ({ activeSection, themeColor, setThemeColor, onOpenAuth }) => {
     return currentUser.name.charAt(0).toUpperCase();
   };
 
+  // Auth accent: white + pink for girls, blue for boys
+  const authAccent = currentUser && currentUser.gender === 'male' ? '#2563eb' : '#ec4899';
+
   return (
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
-        <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="nav-logo" style={{ color: themeColor }}>
-          Smit<span>.</span>
+        <a href="#home" onClick={(e) => handleNavClick(e, 'home')} className="nav-logo">
+          Smit<span style={{ color: themeColor }}>.</span>
         </a>
 
         <ul className="nav-menu">
@@ -173,12 +176,12 @@ const NavBar = ({ activeSection, themeColor, setThemeColor, onOpenAuth }) => {
           <div className="nav-auth-divider" />
 
           {/* Authentication Actions */}
-          <div className="nav-auth-buttons">
+          <div className="nav-auth-buttons" style={{ '--nav-auth-accent': authAccent }}>
             {currentUser ? (
               <div className="nav-user-profile">
                 <div 
                   className="nav-user-avatar" 
-                  style={{ backgroundColor: themeColor }}
+                  style={{ backgroundColor: authAccent }}
                   title={`Signed in as ${currentUser.name} (${currentUser.email})`}
                 >
                   {getUserInitial()}
@@ -187,7 +190,7 @@ const NavBar = ({ activeSection, themeColor, setThemeColor, onOpenAuth }) => {
                   {currentUser.name.split(' ')[0]}
                 </span>
                 <button 
-                  className="nav-btn-logout" 
+                  className="nav-btn-logout btn btn-sm btn-danger" 
                   onClick={handleLogout}
                   title="Sign out of your account"
                 >
@@ -197,14 +200,13 @@ const NavBar = ({ activeSection, themeColor, setThemeColor, onOpenAuth }) => {
             ) : (
               <div className="nav-guest-actions">
                 <button
-                  className="nav-btn-signin"
+                  className="nav-btn-signin btn btn-sm"
                   onClick={() => onOpenAuth && onOpenAuth('login')}
                 >
                   Sign In
                 </button>
                 <button
-                  className="nav-btn-signup"
-                  style={{ backgroundColor: themeColor }}
+                  className="nav-btn-signup btn btn-sm"
                   onClick={() => onOpenAuth && onOpenAuth('register')}
                 >
                   Sign Up

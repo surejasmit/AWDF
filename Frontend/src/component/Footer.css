@@ -1,41 +1,34 @@
 .footer-section {
   position: relative;
-  background: rgba(15, 16, 20, 0.95);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  padding: 100px 40px 40px 40px;
+  background: var(--bg-subtle);
+  border-top: 1px solid var(--border);
+  padding: 80px 32px 36px;
   overflow: hidden;
   box-sizing: border-box;
 }
 
-/* Light theme override */
-@media (prefers-color-scheme: light) {
-  .footer-section {
-    background: rgba(249, 250, 251, 0.95);
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-  }
-}
-
 @media (max-width: 768px) {
   .footer-section {
-    padding: 60px 20px 30px 20px;
+    padding: 56px 20px 28px;
   }
 }
 
 .footer-glow {
   position: absolute;
-  bottom: -150px;
+  bottom: -160px;
   left: 50%;
   transform: translateX(-50%);
-  width: 500px;
-  height: 500px;
+  width: 520px;
+  height: 520px;
   pointer-events: none;
   z-index: 0;
-  filter: blur(60px);
+  filter: blur(70px);
+  opacity: 0.4;
   border-radius: 50%;
 }
 
 .footer-container {
-  max-width: 1200px;
+  max-width: var(--container);
   margin: 0 auto;
   position: relative;
   z-index: 1;
@@ -46,104 +39,68 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-bottom: 80px;
-}
-
-@media (max-width: 768px) {
-  .footer-content {
-    margin-bottom: 50px;
-  }
+  margin-bottom: 56px;
 }
 
 .footer-title {
-  font-size: 38px;
-  font-weight: 800;
-  margin: 0 0 16px 0;
-  letter-spacing: -1px;
-  color: #fff;
-}
-
-@media (prefers-color-scheme: light) {
-  .footer-title {
-    color: #111827;
-  }
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  margin: 0 0 12px 0;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
 }
 
 .footer-subtitle {
-  font-size: 16px;
-  color: #9ca3af;
-  max-width: 500px;
-  margin: 0 0 35px 0;
-  line-height: 1.6;
-}
-
-@media (prefers-color-scheme: light) {
-  .footer-subtitle {
-    color: #4b5563;
-  }
+  font-size: var(--fs-body);
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin: 0 0 28px 0;
+  line-height: 1.65;
 }
 
 .email-button {
-  font-size: 18px;
-  font-weight: 700;
-  text-decoration: none;
-  padding: 16px 36px;
-  border-radius: 30px;
-  border: 1px solid;
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  display: inline-block;
-  margin-bottom: 40px;
+  font-weight: 600;
+  padding: 0 26px;
+  margin-bottom: 24px;
+}
+
+.email-button:hover {
+  color: #fff !important;
+  filter: brightness(1.06);
 }
 
 .social-links {
   display: flex;
-  gap: 24px;
+  gap: 10px;
 }
 
 .social-icon {
-  font-size: 15px;
+  font-size: var(--fs-xs);
   font-weight: 600;
-  text-decoration: none;
-  color: #9ca3af;
-  transition: color 0.3s ease, transform 0.3s ease;
-  position: relative;
-  padding: 4px 0;
-}
-
-@media (prefers-color-scheme: light) {
-  .social-icon {
-    color: #4b5563;
-  }
-}
-
-.social-icon::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--hover-color);
-  transition: width 0.3s ease;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
 }
 
 .social-icon:hover {
-  color: var(--hover-color) !important;
-  transform: translateY(-2px);
+  color: var(--hover-color, var(--accent)) !important;
+  background: var(--surface-hover);
+  border-color: var(--hover-color, var(--accent));
 }
 
-.social-icon:hover::after {
-  width: 100%;
+.social-icon::after {
+  display: none;
 }
 
+/* ─── Bottom bar ─── */
 .footer-bottom {
-  border-top: 1px solid;
-  padding-top: 30px;
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 12px;
 }
 
 @media (max-width: 480px) {
@@ -154,18 +111,17 @@
 }
 
 .copyright {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
   margin: 0;
 }
 
 .built-with {
-  font-size: 14px;
-  color: #6b7280;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
   margin: 0;
 }
 
 .built-with span {
-  font-weight: 700;
-  transition: color 0.4s ease;
+  font-weight: 600;
 }

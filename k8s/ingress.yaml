@@ -1,0 +1,50 @@
+# AWS Load Balancer Controller (ALB) ingress.
+#
+# Placeholders below are replaced by scripts/deploy-aws.ps1:
+#   LISTEN_PORTS_PLACEHOLDER  -> [{"HTTP":80}] or [{"HTTP":80},{"HTTPS":443}]
+#   SSL_REDIRECT_PLACEHOLDER  -> "0" (HTTP only) or "443" (TLS enabled)
+#   certificate-arn           -> injected when -CertArn is passed to the script
+#
+# Requires the AWS Load Balancer Controller installed on the EKS cluster:
+#   https://kubernetes-sigs.github.io/aws-load-balancer-controller/
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: awdf
+  namespace: awdf
+  labels:
+    app.kubernetes.io/name: awdf
+    app.kubernetes.io/part-of: awdf
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: LISTEN_PORTS_PLACEHOLDER
+    alb.ingress.kubernetes.io/ssl-redirect: SSL_REDIRECT_PLACEHOLDER
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+    alb.ingress.kubernetes.io/healthcheck-interval-seconds: "15"
+    alb.ingress.kubernetes.io/healthy-threshold-count: "2"
+    alb.ingress.kubernetes.io/unhealthy-threshold-count: "3"
+    alb.ingress.kubernetes.io/success-codes: "200"
+    alb.ingress.kubernetes.io/group.name: awdf
+spec:
+  ingressClassName: alb
+  rules:
+    - http:
+        paths:
+          # API traffic goes straight to the backend (the frontend nginx
+          # proxy also handles /api, but short-circuiting here is cheaper).
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: backend
+                port:
+                  number: 5000
+          # Everything else is served by the SPA.
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80

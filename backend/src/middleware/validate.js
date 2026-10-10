@@ -6,7 +6,7 @@ const emailRegex = /^\S+@\S+\.\S+$/;
  * Validate User Registration Payload
  */
 const validateRegister = (req, res, next) => {
-  const { name, email, password } = req.body || {};
+  const { name, email, password, gender } = req.body || {};
 
   if (!name || typeof name !== "string" || !name.trim()) {
     return res.status(400).json({
@@ -50,10 +50,22 @@ const validateRegister = (req, res, next) => {
     });
   }
 
+  let normalizedGender;
+  if (gender !== undefined && gender !== null && gender !== "") {
+    if (typeof gender !== "string" || !["male", "female"].includes(gender.trim().toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: "Validation Error: Gender must be either 'male' or 'female'.",
+      });
+    }
+    normalizedGender = gender.trim().toLowerCase();
+  }
+
   req.validatedUser = {
     name: name.trim(),
     email: email.toLowerCase().trim(),
     password,
+    gender: normalizedGender,
   };
 
   next();

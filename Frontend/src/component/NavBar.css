@@ -1,71 +1,88 @@
+/* ─── App Header ─── */
 .navbar {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 80px;
+  height: var(--nav-height);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(10, 12, 17, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  transition: background-color var(--dur) ease, border-color var(--dur) ease,
+    box-shadow var(--dur) ease, height var(--dur) ease;
   box-sizing: border-box;
 }
 
 .navbar.scrolled {
-  background: rgba(15, 23, 42, 0.92);
-  height: 70px;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  height: 58px;
+  background: rgba(10, 12, 17, 0.92);
+  box-shadow: var(--shadow-md);
+}
+
+@media (prefers-color-scheme: light) {
+  .navbar {
+    background: rgba(255, 255, 255, 0.78);
+  }
+  .navbar.scrolled {
+    background: rgba(255, 255, 255, 0.94);
+  }
 }
 
 .navbar-container {
   width: 100%;
-  max-width: 1240px;
-  padding: 0 28px;
+  max-width: var(--container);
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 24px;
   box-sizing: border-box;
 }
 
 @media (max-width: 768px) {
   .navbar-container {
-    padding: 0 16px;
+    padding: 0 20px;
+    gap: 14px;
   }
 }
 
+/* ─── Logo ─── */
 .nav-logo {
-  font-size: 24px;
+  font-size: 19px;
   font-weight: 800;
   text-decoration: none;
-  letter-spacing: -0.5px;
-  transition: transform 0.3s ease;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .nav-logo span {
-  color: #fff;
+  color: var(--accent);
 }
 
 .nav-logo:hover {
-  transform: scale(1.05);
+  opacity: 0.85;
 }
 
+/* ─── Navigation links ─── */
 .nav-menu {
   display: flex;
   list-style: none;
   margin: 0;
   padding: 0;
-  gap: 28px;
+  gap: 4px;
 }
 
 @media (max-width: 900px) {
   .nav-menu {
-    gap: 14px;
+    gap: 2px;
   }
 }
 
@@ -76,54 +93,56 @@
 }
 
 .nav-link {
-  font-size: 14.5px;
-  font-weight: 600;
+  font-size: var(--fs-sm);
+  font-weight: 500;
   text-decoration: none;
-  color: #94a3b8;
-  position: relative;
-  padding: 8px 0;
-  transition: color 0.3s ease;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  transition: color var(--dur) ease, background-color var(--dur) ease;
 }
 
 .nav-link:hover {
-  color: #f8fafc;
+  color: var(--text-primary);
+  background-color: var(--surface-hover);
 }
 
 .nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: currentColor;
-  transition: width 0.3s ease;
-  border-radius: 2px;
+  display: none;
 }
 
-.nav-link.active::after {
-  width: 100%;
+.nav-link.active {
+  background-color: var(--surface-hover);
+  font-weight: 600;
+  box-shadow: inset 0 0 0 1px var(--border);
 }
 
-/* Right Corner Container */
+/* ─── Right side cluster ─── */
 .nav-right-corner {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
+/* Theme swatches */
 .theme-selector-container {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 5px 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
 }
 
 .theme-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #64748b;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 
 @media (max-width: 600px) {
@@ -134,35 +153,33 @@
 
 .theme-dots {
   display: flex;
-  gap: 5px;
+  gap: 6px;
 }
 
 .theme-dot {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   border-radius: 50%;
-  border: 2px solid transparent;
+  border: 1.5px solid transparent;
   cursor: pointer;
   padding: 0;
-  transition: all 0.25s ease;
   outline: none;
+  transition: transform var(--dur) ease, box-shadow var(--dur) ease;
 }
 
 .theme-dot:hover {
-  transform: scale(1.3);
+  transform: scale(1.15);
 }
 
 .theme-dot.active {
-  border-color: #fff;
-  transform: scale(1.2);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 3.5px var(--border-strong);
 }
 
-/* Nav Auth Divider */
 .nav-auth-divider {
   width: 1px;
-  height: 22px;
-  background: rgba(255, 255, 255, 0.12);
+  height: 24px;
+  background: var(--border);
 }
 
 @media (max-width: 500px) {
@@ -171,7 +188,7 @@
   }
 }
 
-/* Auth Buttons */
+/* ─── Auth buttons ─── */
 .nav-auth-buttons {
   display: flex;
   align-items: center;
@@ -185,57 +202,39 @@
 
 .nav-btn-signin {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #e2e8f0;
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 6px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
 }
 
 .nav-btn-signin:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.3);
-  color: #fff;
-  transform: translateY(-1px);
+  background: var(--surface-hover);
+  border-color: var(--text-muted);
 }
 
 .nav-btn-signup {
-  border: none;
+  border: 1px solid transparent;
+  background: var(--nav-auth-accent, #ec4899);
   color: #ffffff;
-  font-size: 13.5px;
-  font-weight: 600;
-  padding: 6px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
 }
 
 .nav-btn-signup:hover {
-  opacity: 0.92;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  filter: brightness(1.07);
 }
 
-/* User Profile Badge */
+/* ─── Signed-in user chip ─── */
 .nav-user-profile {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 4px 10px 4px 6px;
-  border-radius: 30px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 4px 6px 4px 5px;
+  border-radius: 999px;
 }
 
 .nav-user-avatar {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   color: #ffffff;
   font-size: 12px;
@@ -243,13 +242,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
 }
 
 .nav-user-name {
-  font-size: 13px;
+  font-size: var(--fs-xs);
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text-primary);
   max-width: 90px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -257,20 +256,5 @@
 }
 
 .nav-btn-logout {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
-  font-size: 11.5px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
   margin-left: 2px;
-}
-
-.nav-btn-logout:hover {
-  background: rgba(239, 68, 68, 0.3);
-  color: #fff;
 }

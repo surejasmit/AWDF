@@ -161,7 +161,6 @@ function App() {
         isOpen={authModal.isOpen}
         initialMode={authModal.mode}
         onClose={handleCloseAuth}
-        themeColor={themeColor}
       />
     </div>
   );

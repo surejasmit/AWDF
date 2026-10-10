@@ -2,67 +2,38 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #121318;
-  color: #f3f4f6;
-  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
-  transition: background-color 0.4s ease;
+  background-color: var(--bg);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
   overflow-x: hidden;
-}
-
-@media (prefers-color-scheme: light) {
-  .portfolio-app {
-    background-color: #f8fafc;
-    color: #1e293b;
-  }
 }
 
 .main-content {
   flex: 1 0 auto;
 }
 
-/* Global transitions and scroll styling */
-html {
-  scroll-behavior: smooth;
-}
-
-/* Custom Scrollbar */
+/* ─── Custom Scrollbar ─── */
 ::-webkit-scrollbar {
   width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #121318;
-}
-
-@media (prefers-color-scheme: light) {
-  ::-webkit-scrollbar-track {
-    background: #f8fafc;
-  }
+  background: var(--bg);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 5px;
-}
-
-@media (prefers-color-scheme: light) {
-  ::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.1);
-  }
+  background: var(--border-strong);
+  border-radius: 6px;
+  border: 2px solid var(--bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--text-muted);
 }
 
-@media (prefers-color-scheme: light) {
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.2);
-  }
-}
-
-/* Text selections */
+/* ─── Text selections ─── */
 ::selection {
-  background-color: var(--theme-color, #8b5cf6);
+  background-color: var(--accent);
   color: #fff;
 }

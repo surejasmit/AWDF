@@ -42,8 +42,7 @@ const Skills = ({ skillsList, themeColor }) => {
                       className="skill-bar" 
                       style={{ 
                         width: `${skill.level}%`,
-                        backgroundColor: themeColor,
-                        boxShadow: `0 0 10px ${themeColor}66`
+                        backgroundColor: themeColor
                       }}
                     ></div>
                   </div>

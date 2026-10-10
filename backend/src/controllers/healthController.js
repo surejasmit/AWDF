@@ -60,7 +60,16 @@ const getRoot = (req, res) => {
   });
 };
 
+/**
+ * Liveness / load-balancer health check handler
+ * GET /healthz - returns 200 whenever the process is running.
+ */
+const getAlive = (req, res) => {
+  res.status(200).json({ status: "alive", timestamp: new Date().toISOString() });
+};
+
 module.exports = {
   getHealth,
   getRoot,
+  getAlive,
 };
