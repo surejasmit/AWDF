@@ -11,6 +11,10 @@ const {
 // All task endpoints require valid JWT authentication
 router.use(authMiddleware);
 
+// Practical 9 Caching Debug & Monitoring routes (Must precede /:id parameter route)
+router.get("/cache/stats", taskController.getCacheStats);
+router.post("/cache/clear", taskController.clearCache);
+
 // Collection routes
 router
   .route("/")

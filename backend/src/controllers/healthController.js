@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const cache = require("../utils/cache");
 
 /**
  * Health and Readiness check handler
@@ -28,8 +29,13 @@ const getHealth = (req, res) => {
       host: mongoose.connection.host || null,
       name: mongoose.connection.name || null,
     },
+    caching: {
+      provider: "node-cache",
+      stats: cache.getDetailedStats(),
+    },
     endpoints: {
       health: "GET /health",
+      cacheStats: "GET /api/cache-stats",
       auth: {
         register: "POST /auth/register",
         login: "POST /auth/login",
@@ -41,6 +47,7 @@ const getHealth = (req, res) => {
         getById: "GET /tasks/:id",
         update: "PUT /tasks/:id",
         delete: "DELETE /tasks/:id",
+        cacheStats: "GET /tasks/cache/stats",
       },
     },
   });
@@ -56,6 +63,7 @@ const getRoot = (req, res) => {
     status: "online",
     version: "1.0.0",
     healthCheck: "GET /health",
+    cacheStats: "GET /api/cache-stats",
     documentation: "See docs/API.md",
   });
 };
@@ -68,8 +76,20 @@ const getAlive = (req, res) => {
   res.status(200).json({ status: "alive", timestamp: new Date().toISOString() });
 };
 
+/**
+ * Public Cache Statistics handler (Practical 9 debug endpoint)
+ * GET /cache-stats and GET /api/cache-stats
+ */
+const getCacheStats = (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    caching: cache.getDetailedStats(),
+  });
+};
+
 module.exports = {
   getHealth,
   getRoot,
   getAlive,
+  getCacheStats,
 };
