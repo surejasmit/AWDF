@@ -1,7 +1,6 @@
 const taskService = require("../services/taskService");
-const emailService = require("../services/emailService");
-const User = require("../models/User");
 const cache = require("../utils/cache");
+const { eventBus, EVENTS } = require("../events/eventBus");
 
 /**
  * Get all tasks for the authenticated user
@@ -71,7 +70,7 @@ const getTaskById = async (req, res, next) => {
 /**
  * Create a new task
  * POST /tasks
- * Invalidates user task collection cache on successful write
+ * Publishes TASK_CREATED event to EventBus (triggers async audit trail, notifications & cache eviction)
  */
 const createTask = async (req, res, next) => {
   try {
@@ -80,8 +79,15 @@ const createTask = async (req, res, next) => {
 
     const newTask = await taskService.createTask(title, userId);
 
-    // Cache Invalidation: invalidate user tasks list so newly created task appears immediately
+    // Invalidate local cache
     cache.invalidateUserTasks(userId);
+
+    // Publish domain event to EventBus for decoupled background listeners
+    eventBus.publish(EVENTS.TASK_CREATED, {
+      task: newTask,
+      user: req.user,
+      userId,
+    });
 
     return res.status(201).json(newTask);
   } catch (error) {
@@ -92,7 +98,7 @@ const createTask = async (req, res, next) => {
 /**
  * Update an existing task
  * PUT /tasks/:id or PATCH /tasks/:id
- * Invalidates both the collection cache and the single task cache on write
+ * Publishes TASK_UPDATED event to EventBus (triggers async email, audit log & cache eviction)
  */
 const updateTask = async (req, res, next) => {
   try {
@@ -109,20 +115,15 @@ const updateTask = async (req, res, next) => {
       });
     }
 
-    // Cache Invalidation: clear stale cached list and cached individual task
+    // Invalidate local cache
     cache.invalidateUserTasks(userId, taskId);
 
-    // Send task update notification email asynchronously
-    (async () => {
-      let user = req.user;
-      if (!user || !user.email) {
-        user = await User.findById(userId);
-      }
-      if (user && user.email) {
-        await emailService.sendTaskUpdateEmail(user, updatedTask);
-      }
-    })().catch((err) => {
-      console.warn("Task update email error:", err.message);
+    // Publish domain event to EventBus for asynchronous background handling
+    eventBus.publish(EVENTS.TASK_UPDATED, {
+      task: updatedTask,
+      user: req.user,
+      userId,
+      updates: { title, completed },
     });
 
     return res.status(200).json(updatedTask);
@@ -134,7 +135,7 @@ const updateTask = async (req, res, next) => {
 /**
  * Delete a task by ID
  * DELETE /tasks/:id
- * Invalidates both the collection cache and the single task cache on delete
+ * Publishes TASK_DELETED event to EventBus (triggers async audit log & cache eviction)
  */
 const deleteTask = async (req, res, next) => {
   try {
@@ -149,8 +150,15 @@ const deleteTask = async (req, res, next) => {
       });
     }
 
-    // Cache Invalidation: remove deleted item from cache immediately
+    // Invalidate local cache
     cache.invalidateUserTasks(userId, taskId);
+
+    // Publish domain event to EventBus
+    eventBus.publish(EVENTS.TASK_DELETED, {
+      taskId,
+      user: req.user,
+      userId,
+    });
 
     return res.status(200).json({
       success: true,

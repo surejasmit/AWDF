@@ -3,7 +3,13 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const healthRoutes = require("./routes/healthRoutes");
+const jobRoutes = require("./routes/jobRoutes");
+const activityRoutes = require("./routes/activityRoutes");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
+const { registerAllSubscribers } = require("./events/subscribers");
+
+// Initialize Event-Driven Architecture subscribers
+registerAllSubscribers();
 
 const app = express();
 
@@ -29,6 +35,10 @@ app.use("/api/auth", authRoutes);
 app.use("/tasks", taskRoutes);
 app.use("/task", taskRoutes);
 app.use("/api/tasks", taskRoutes);
+app.use("/jobs", jobRoutes);
+app.use("/api/jobs", jobRoutes);
+app.use("/activities", activityRoutes);
+app.use("/api/activities", activityRoutes);
 
 // 404 & Centralized Error Handlers
 app.use(notFoundHandler);

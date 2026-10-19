@@ -1,19 +1,18 @@
 const authService = require("../services/authService");
-const emailService = require("../services/emailService");
+const { eventBus, EVENTS } = require("../events/eventBus");
 
 /**
  * Register a new user
  * POST /auth/register
+ * Publishes USER_REGISTERED event to EventBus (triggers async welcome email & audit log)
  */
 const register = async (req, res, next) => {
   try {
     const { name, email, password, gender } = req.validatedUser || req.body;
     const result = await authService.registerUser({ name, email, password, gender });
 
-    // Send welcome email asynchronously to the new user
-    emailService.sendWelcomeEmail(result.user).catch((err) => {
-      console.warn("Welcome email async error:", err.message);
-    });
+    // Publish domain event asynchronously
+    eventBus.publish(EVENTS.USER_REGISTERED, { user: result.user });
 
     return res.status(201).json({
       success: true,
@@ -29,11 +28,15 @@ const register = async (req, res, next) => {
 /**
  * Login existing user
  * POST /auth/login
+ * Publishes USER_LOGGED_IN event to EventBus (triggers async audit log)
  */
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.validatedCredentials || req.body;
     const result = await authService.loginUser({ email, password });
+
+    // Publish login event
+    eventBus.publish(EVENTS.USER_LOGGED_IN, { user: result.user });
 
     return res.status(200).json({
       success: true,

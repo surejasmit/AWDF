@@ -33,7 +33,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: backend
-          image: awdf-backend:latest
+          image: awdf-backend:v1.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

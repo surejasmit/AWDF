@@ -1,14 +1,15 @@
 {
   "name": "awdf-backend",
-  "version": "1.0.0",
-  "description": "Production-ready Task Management REST API with Node.js, Express, MongoDB Atlas, and In-Memory Caching",
+  "version": "1.1.0",
+  "description": "Production-ready Task Management REST API with Node.js, Express, MongoDB Atlas, In-Memory Caching, and Event-Driven Architecture",
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
     "test": "node tests/test-runner.js",
     "test:cache": "node tests/test-cache.js",
-    "test:all": "node tests/test-runner.js && node tests/test-cache.js",
+    "test:events": "node tests/test-events.js",
+    "test:all": "node tests/test-runner.js && node tests/test-cache.js && node tests/test-events.js",
     "test:atlas": "node tests/test-live-atlas.js",
     "benchmark:cache": "node tests/benchmark-cache.js"
   },
@@ -20,7 +21,10 @@
     "authentication",
     "rest-api",
     "caching",
-    "node-cache"
+    "node-cache",
+    "event-driven",
+    "asynchronous-processing",
+    "job-queue"
   ],
   "author": "Smit Sureja",
   "license": "ISC",
