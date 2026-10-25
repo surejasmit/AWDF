@@ -42,4 +42,6 @@ jobs:
 				surejasmit/smit-node-app:latest
 				surejasmit/smit-node-app:${{ github.sha }}
 
+
+
 	
