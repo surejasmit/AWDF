@@ -1,0 +1,18 @@
+# Non-sensitive configuration shared by the backend.
+# Sensitive values (MONGODB_URI, JWT_SECRET, ...) live in the `awdf-secrets` Secret.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: awdf-config
+  namespace: awdf
+  labels:
+    app.kubernetes.io/name: awdf
+    app.kubernetes.io/part-of: awdf
+data:
+  NODE_ENV: "production"
+  PORT: "5000"
+  JWT_EXPIRES_IN: "1h"
+  # Origin allowed by CORS. Requests are same-origin (/api reverse-proxied),
+  # so this is a safety net only. Replace with your public URL, e.g.
+  # https://app.example.com (use the deploy script's -ClientUrl flag or edit here).
+  CLIENT_URL: "*"

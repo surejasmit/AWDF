@@ -1,0 +1,41 @@
+{
+  "name": "awdf-backend",
+  "version": "1.1.0",
+  "description": "Production-ready Task Management REST API with Node.js, Express, MongoDB Atlas, In-Memory Caching, and Event-Driven Architecture",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node tests/test-runner.js",
+    "test:cache": "node tests/test-cache.js",
+    "test:events": "node tests/test-events.js",
+    "test:all": "node tests/test-runner.js && node tests/test-cache.js && node tests/test-events.js",
+    "test:atlas": "node tests/test-live-atlas.js",
+    "benchmark:cache": "node tests/benchmark-cache.js"
+  },
+  "keywords": [
+    "express",
+    "mongodb",
+    "mongoose",
+    "jwt",
+    "authentication",
+    "rest-api",
+    "caching",
+    "node-cache",
+    "event-driven",
+    "asynchronous-processing",
+    "job-queue"
+  ],
+  "author": "Smit Sureja",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.9.4",
+    "node-cache": "^5.1.2",
+    "nodemailer": "^10.0.10"
+  }
+}

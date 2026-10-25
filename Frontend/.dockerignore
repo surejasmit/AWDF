@@ -1,0 +1,16 @@
+node_modules
+dist
+dist-ssr
+npm-debug.log*
+.env
+.env.*
+!.env.example
+Dockerfile
+.dockerignore
+docker-compose.yml
+README.md
+CHANGELOG.md
+eslint.config.js
+.vscode
+.idea
+.git

@@ -1,0 +1,34 @@
+# Single source of truth for all manifests:  kubectl apply -k k8s/
+#
+# NOTE: the awdf-secrets Secret is intentionally NOT listed here so that
+# credentials never live in Git. scripts/deploy-aws.ps1 creates it out-of-band.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: awdf
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - backend-deployment.yaml
+  - backend-service.yaml
+  - frontend-deployment.yaml
+  - frontend-service.yaml
+  - ingress.yaml
+  - hpa.yaml
+  - pdb.yaml
+
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: kustomize
+    includeSelectors: false
+
+# Image locations. The deploy script rewrites these to the ECR repositories
+# (and the pushed tag) inside a temp copy before applying.
+images:
+  - name: awdf-backend
+    newName: awdf-backend
+    newTag: latest
+  - name: awdf-frontend
+    newName: awdf-frontend
+    newTag: latest

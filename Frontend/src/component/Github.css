@@ -1,0 +1,240 @@
+.gh-page {
+  min-height: 100vh;
+  background: var(--bg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  color: var(--text-primary);
+  padding-top: var(--nav-height);
+  padding-bottom: 48px;
+  box-sizing: border-box;
+}
+
+.gh-nav {
+  position: sticky;
+  top: var(--nav-height);
+  z-index: 10;
+  background: rgba(10, 12, 17, 0.82);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  padding: 24px 24px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+@media (prefers-color-scheme: light) {
+  .gh-nav {
+    background: rgba(247, 248, 250, 0.86);
+  }
+}
+
+@media (max-width: 640px) {
+  .gh-nav {
+    padding: 18px 16px 12px;
+  }
+}
+
+.gh-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  margin-bottom: 8px;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+.gh-back:hover {
+  color: var(--text-primary);
+}
+
+.gh-back span {
+  color: var(--accent);
+}
+
+.gh-title {
+  font-size: clamp(24px, 3vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.15;
+  color: var(--text-primary);
+}
+
+/* ─── Loading ─── */
+.gh-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 72px 16px;
+  color: var(--text-muted);
+  font-size: var(--fs-xs);
+}
+
+.gh-spinner {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid var(--border-strong);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Error state ─── */
+.gh-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 32px 16px;
+  padding: 40px 20px;
+  text-align: center;
+  gap: 8px;
+  background: var(--danger-soft);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-lg);
+}
+
+.gh-error p {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.gh-error-detail {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+/* ─── Repository list ─── */
+.gh-list {
+  max-width: 860px;
+  margin: 24px auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+@media (max-width: 640px) {
+  .gh-list {
+    margin: 16px;
+  }
+}
+
+.gh-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: inherit;
+  border-bottom: 1px solid var(--border);
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur) ease;
+}
+
+.gh-row:last-child {
+  border-bottom: none;
+}
+
+.gh-row:hover {
+  background: var(--surface-hover);
+}
+
+.gh-row:active {
+  background: var(--surface-raised);
+}
+
+.gh-row-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gh-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.gh-row-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gh-row-name {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gh-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.gh-row-desc {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gh-row-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: var(--fs-label);
+  color: var(--text-muted);
+}
+
+.gh-row-meta span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.gh-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.gh-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0.7;
+  transition: transform var(--dur) ease, opacity var(--dur) ease;
+}
+
+.gh-row:hover .gh-chevron {
+  transform: translateX(2px);
+  opacity: 1;
+}

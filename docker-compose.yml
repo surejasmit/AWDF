@@ -1,0 +1,58 @@
+# Production-like local stack:  docker compose up --build
+#   Frontend  -> http://localhost:8080  (nginx, SPA + /api reverse proxy)
+#   Backend   -> http://localhost:5000  (direct API access, optional)
+#   MongoDB   -> internal only (no host port exposed)
+name: awdf
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # Hardening: no need for other services to reach Mongo from the host
+    security_opt:
+      - no-new-privileges:true
+
+  backend:
+    build:
+      context: ./backend
+    image: awdf-backend:latest
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "5000"
+      MONGODB_URI: mongodb://mongo:27017/taskmanager
+      JWT_SECRET: ${JWT_SECRET:-local_compose_only_change_me_9f3a7c21e5b8d460}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+      CLIENT_URL: ${CLIENT_URL:-http://localhost:8080}
+    ports:
+      - "5000:5000"
+    security_opt:
+      - no-new-privileges:true
+
+  frontend:
+    build:
+      context: ./Frontend
+      args:
+        VITE_API_BASE_URL: /api
+    image: awdf-frontend:latest
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:8080"
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  mongo-data:
