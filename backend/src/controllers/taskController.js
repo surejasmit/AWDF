@@ -76,8 +76,12 @@ const createTask = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const title = req.validatedTitle || req.body.title || req.body.text;
+    const { description, priority, dueDate, subtasks, aiGenerated } = req.body;
 
-    const newTask = await taskService.createTask(title, userId);
+    const newTask = await taskService.createTask(
+      { title, description, priority, dueDate, subtasks, aiGenerated },
+      userId
+    );
 
     // Invalidate local cache
     cache.invalidateUserTasks(userId);
@@ -104,10 +108,20 @@ const updateTask = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const taskId = req.params.id;
-    const title = req.validatedTitle;
-    const completed = req.validatedCompleted;
+    const title = req.validatedTitle !== undefined ? req.validatedTitle : req.body.title;
+    const completed = req.validatedCompleted !== undefined ? req.validatedCompleted : req.body.completed;
+    const { description, priority, dueDate, subtasks, aiGenerated } = req.body;
 
-    const updatedTask = await taskService.updateTask(taskId, { title, completed }, userId);
+    const updatePayload = {};
+    if (title !== undefined) updatePayload.title = title;
+    if (completed !== undefined) updatePayload.completed = completed;
+    if (description !== undefined) updatePayload.description = description;
+    if (priority !== undefined) updatePayload.priority = priority;
+    if (dueDate !== undefined) updatePayload.dueDate = dueDate;
+    if (subtasks !== undefined) updatePayload.subtasks = subtasks;
+    if (aiGenerated !== undefined) updatePayload.aiGenerated = aiGenerated;
+
+    const updatedTask = await taskService.updateTask(taskId, updatePayload, userId);
     if (!updatedTask) {
       return res.status(404).json({
         success: false,
@@ -123,7 +137,7 @@ const updateTask = async (req, res, next) => {
       task: updatedTask,
       user: req.user,
       userId,
-      updates: { title, completed },
+      updates: updatePayload,
     });
 
     return res.status(200).json(updatedTask);

@@ -26,6 +26,7 @@ export const CONFIG = {
     ME: `${API_BASE}/auth/me`,
   },
   TASKS_ENDPOINT: `${API_BASE}/tasks`,
+  AI_ENDPOINT: `${API_BASE}/ai/suggest`,
 };
 
 /**
@@ -35,6 +36,14 @@ export const CONFIG = {
  */
 export const getApiEndpoint = (id = "") => {
   return id ? `${CONFIG.TASKS_ENDPOINT}/${id}` : CONFIG.TASKS_ENDPOINT;
+};
+
+/**
+ * Gets AI Suggestion endpoint
+ * @returns {string} Full URL
+ */
+export const getAiEndpoint = () => {
+  return CONFIG.AI_ENDPOINT;
 };
 
 export default CONFIG;

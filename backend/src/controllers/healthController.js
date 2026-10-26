@@ -22,7 +22,7 @@ const getHealth = (req, res) => {
   res.status(isHealthy ? 200 : 503).json({
     status: isHealthy ? "healthy" : "degraded",
     server: "Task Management API",
-    version: "1.1.0",
+    version: "1.2.0",
     uptime: `${Math.floor(process.uptime())}s`,
     timestamp: new Date().toISOString(),
     database: {
@@ -43,11 +43,21 @@ const getHealth = (req, res) => {
       provider: "In-Memory Asynchronous Worker Queue",
       metrics: jobQueueService.getMetrics(),
     },
+    aiService: {
+      provider: "Groq (OpenAI-Compatible LLaMA / GPT OSS) & Google Gemini",
+      model: process.env.AI_MODEL || "openai/gpt-oss-120b",
+      status: process.env.GROQ_API_KEY || process.env.GEMINI_API_KEY ? "configured" : "fallback-only",
+      features: ["Auto-generate description", "Suggest priority", "Propose deadline & subtasks"],
+    },
     endpoints: {
       health: "GET /health",
       cacheStats: "GET /api/cache-stats",
       eventMetrics: "GET /api/activities/metrics",
       jobMetrics: "GET /api/jobs/metrics",
+      ai: {
+        suggest: "POST /api/ai/suggest",
+        taskAiSuggest: "POST /tasks/ai-suggest",
+      },
       auth: {
         register: "POST /auth/register",
         login: "POST /auth/login",
@@ -60,6 +70,7 @@ const getHealth = (req, res) => {
         update: "PUT /tasks/:id",
         delete: "DELETE /tasks/:id",
         cacheStats: "GET /tasks/cache/stats",
+        aiSuggest: "POST /tasks/ai-suggest",
       },
       jobs: {
         export: "POST /api/jobs/export",
@@ -83,8 +94,13 @@ const getRoot = (req, res) => {
   res.status(200).json({
     name: "AWDF Task Management & Portfolio API",
     status: "online",
-    version: "1.1.0",
-    features: ["In-Memory Caching (node-cache)", "Event-Driven Architecture", "Asynchronous Job Queue"],
+    version: "1.2.0",
+    features: [
+      "In-Memory Caching (node-cache)",
+      "Event-Driven Architecture",
+      "Asynchronous Job Queue",
+      "AI-Powered Task Assistant (Groq / Gemini)",
+    ],
     healthCheck: "GET /health",
     cacheStats: "GET /api/cache-stats",
     eventMetrics: "GET /api/activities/metrics",

@@ -13,6 +13,31 @@ const taskSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    description: {
+      type: String,
+      default: "",
+      trim: true,
+      maxlength: [2000, "Description cannot exceed 2000 characters"],
+    },
+    priority: {
+      type: String,
+      enum: ["Low", "Medium", "High"],
+      default: "Medium",
+    },
+    dueDate: {
+      type: Date,
+      default: null,
+    },
+    subtasks: [
+      {
+        title: { type: String, trim: true },
+        completed: { type: Boolean, default: false },
+      },
+    ],
+    aiGenerated: {
+      type: Boolean,
+      default: false,
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

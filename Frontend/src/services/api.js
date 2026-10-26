@@ -71,11 +71,12 @@ export const taskService = {
     return data;
   },
 
-  async createTask(title) {
+  async createTask(taskInput) {
+    const payload = typeof taskInput === "string" ? { title: taskInput } : taskInput;
     const res = await fetch(getApiEndpoint(), {
       method: "POST",
       headers: getHeaders(true),
-      body: JSON.stringify({ title }),
+      body: JSON.stringify(payload),
     });
     checkAuthError(res.status);
     const data = await res.json();
@@ -104,5 +105,19 @@ export const taskService = {
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || "Failed to delete task");
     return data;
+  },
+};
+
+export const aiService = {
+  async getTaskSuggestions(title) {
+    const res = await fetch(CONFIG.AI_ENDPOINT, {
+      method: "POST",
+      headers: getHeaders(true),
+      body: JSON.stringify({ title }),
+    });
+    checkAuthError(res.status);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to fetch AI suggestions");
+    return data.data;
   },
 };

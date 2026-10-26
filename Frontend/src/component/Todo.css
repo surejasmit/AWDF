@@ -491,3 +491,247 @@
     order: 3;
   }
 }
+
+
+/* ═════════════════════════════════════════════════════════════════
+   AI-POWERED TASK ASSISTANT STYLES
+   ═════════════════════════════════════════════════════════════════ */
+
+.btn-ai {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 10px rgba(168, 85, 247, 0.25);
+  white-space: nowrap;
+}
+
+.btn-ai:hover:not(:disabled) {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);
+}
+
+.btn-ai:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-ai-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #ffffff;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ─── AI Suggestion Card ─── */
+.todo-ai-card {
+  margin-top: 14px;
+  margin-bottom: 14px;
+  background: linear-gradient(145deg, #18181b 0%, #1e1b4b 100%);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  border-radius: 12px;
+  padding: 16px 20px;
+  color: #f3f4f6;
+  animation: todoRowIn 0.3s ease-out;
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.15);
+}
+
+.todo-ai-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.todo-ai-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.todo-ai-title-wrap h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #c084fc;
+}
+
+.todo-ai-provider-pill {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+  color: #d1d5db;
+  font-weight: 500;
+}
+
+.todo-ai-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.todo-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.todo-ai-badge.priority-high {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.todo-ai-badge.priority-medium {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.todo-ai-badge.priority-low {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.todo-ai-badge.deadline {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.todo-ai-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e5e7eb;
+  margin-bottom: 12px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 10px 12px;
+  border-radius: 8px;
+}
+
+.todo-ai-subtasks-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+.todo-ai-subtasks-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 14px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.todo-ai-subtasks-list li {
+  font-size: 13px;
+  color: #d1d5db;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.todo-ai-subtask-check {
+  color: #a855f7;
+  font-size: 14px;
+}
+
+.todo-ai-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.todo-ai-apply-btn {
+  background: #a855f7;
+  color: #ffffff;
+  border: none;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.todo-ai-apply-btn:hover {
+  background: #9333ea;
+}
+
+.todo-ai-dismiss-btn {
+  background: transparent;
+  color: #9ca3af;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.todo-ai-dismiss-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e5e7eb;
+}
+
+/* Task Item Badges */
+.todo-item-priority {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-left: 8px;
+  display: inline-block;
+}
+
+.todo-item-priority.high {
+  background: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+}
+
+.todo-item-priority.medium {
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+}
+
+.todo-item-priority.low {
+  background: rgba(16, 185, 129, 0.18);
+  color: #10b981;
+}
+
+.todo-item-desc {
+  display: block;
+  font-size: 12px;
+  color: var(--text-muted, #9ca3af);
+  margin-top: 3px;
+}

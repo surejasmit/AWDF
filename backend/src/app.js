@@ -5,6 +5,7 @@ const taskRoutes = require("./routes/taskRoutes");
 const healthRoutes = require("./routes/healthRoutes");
 const jobRoutes = require("./routes/jobRoutes");
 const activityRoutes = require("./routes/activityRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const { errorHandler, notFoundHandler } = require("./middleware/errorHandler");
 const { registerAllSubscribers } = require("./events/subscribers");
 
@@ -39,6 +40,8 @@ app.use("/jobs", jobRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/activities", activityRoutes);
 app.use("/api/activities", activityRoutes);
+app.use("/ai", aiRoutes);
+app.use("/api/ai", aiRoutes);
 
 // 404 & Centralized Error Handlers
 app.use(notFoundHandler);

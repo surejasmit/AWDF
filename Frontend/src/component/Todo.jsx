@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import "./Todo.css";
-import { getApiEndpoint } from "../config/config";
+import { getApiEndpoint, getAiEndpoint } from "../config/config";
 import AuthModal from "./AuthModal";
 
 // Parse response into array of tasks
@@ -13,6 +13,11 @@ const parseResponse = (data) => {
       title: data[key].title || data[key].text || "",
       text: data[key].title || data[key].text || "",
       completed: data[key].completed || false,
+      priority: data[key].priority || null,
+      description: data[key].description || "",
+      suggestedDeadline: data[key].suggestedDeadline || null,
+      subtasks: data[key].subtasks || [],
+      aiGenerated: data[key].aiGenerated || false,
     }));
   }
   return [];
@@ -24,6 +29,12 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // AI-powered state
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiSuggestion, setAiSuggestion] = useState(null);
+  const [aiNotice, setAiNotice] = useState(null);
+
   const [localAuthModal, setLocalAuthModal] = useState({ isOpen: false, mode: 'login' });
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem("auth_user");
@@ -167,7 +178,113 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
     setText("");
     setEditId(null);
     setError(null);
+    setAiSuggestion(null);
     window.dispatchEvent(new Event("auth_change"));
+  };
+
+  // AI Task Enhancement Request
+  const handleAiAssist = async () => {
+    const trimmed = text.trim();
+    if (!trimmed) {
+      setError("Please enter a task title first to get AI suggestions.");
+      return;
+    }
+
+    const token = getAuthToken();
+    if (!token) {
+      openAuth("login");
+      return;
+    }
+
+    setAiLoading(true);
+    setAiNotice(null);
+    setError(null);
+
+    try {
+      const res = await fetch(getAiEndpoint(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ title: trimmed }),
+      });
+
+      if (res.status === 401) {
+        handleLogout();
+        openAuth("login");
+        return;
+      }
+
+      const resData = await res.json();
+      if (!res.ok || !resData.data) {
+        throw new Error(resData.message || "AI service is currently unavailable.");
+      }
+
+      setAiSuggestion(resData.data);
+      if (resData.warning) {
+        setAiNotice(resData.warning);
+      }
+    } catch (err) {
+      console.warn("AI assistance call handled gracefully:", err.message);
+      // Graceful error display: informs the user without crashing or blocking regular task creation
+      setAiNotice("AI assist encountered a temporary issue. You can still add tasks normally.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Apply AI Suggestion directly into the task
+  const applyAiSuggestion = async () => {
+    if (!aiSuggestion) return;
+
+    const token = getAuthToken();
+    if (!token) {
+      openAuth("login");
+      return;
+    }
+
+    setError(null);
+    try {
+      const payload = {
+        title: aiSuggestion.title || text.trim(),
+        description: aiSuggestion.description || "",
+        priority: aiSuggestion.priority || "Medium",
+        dueDate: null,
+        subtasks: (aiSuggestion.suggestedSubtasks || []).map((st) => ({
+          title: st,
+          completed: false,
+        })),
+        aiGenerated: true,
+      };
+
+      const res = await fetch(getApiEndpoint(), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.status === 401) {
+        handleLogout();
+        openAuth("login");
+        return;
+      }
+
+      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.message || "Failed to save AI-enhanced task.");
+      }
+
+      setAiSuggestion(null);
+      setText("");
+      getTasks();
+    } catch (err) {
+      console.error("Failed to apply AI suggestion:", err);
+      setError(err.message);
+    }
   };
 
   // Save Task (Create or Update)
@@ -190,7 +307,18 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
     try {
       const endpoint = editId ? getApiEndpoint(editId) : getApiEndpoint();
       const method = editId ? "PUT" : "POST";
-      const payload = { title: trimmed };
+      const payload = {
+        title: trimmed,
+        ...(aiSuggestion && {
+          description: aiSuggestion.description,
+          priority: aiSuggestion.priority,
+          subtasks: (aiSuggestion.suggestedSubtasks || []).map((st) => ({
+            title: st,
+            completed: false,
+          })),
+          aiGenerated: true,
+        }),
+      };
 
       const res = await fetch(endpoint, {
         method,
@@ -214,6 +342,7 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
 
       setEditId(null);
       setText("");
+      setAiSuggestion(null);
       getTasks();
     } catch (err) {
       console.error("Failed to save task:", err);
@@ -293,6 +422,7 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
   const editTask = (task) => {
     setText(task.title || task.text || "");
     setEditId(task.id);
+    setAiSuggestion(null);
   };
 
   // Handle Enter Key
@@ -309,14 +439,55 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
       key={task.id}
       className={`todo-item ${task.completed ? "completed" : ""}`}
     >
-      <span
-        className="todo-item-text"
-        onClick={() => toggleComplete(task)}
-        title="Click to toggle completion"
-        style={{ cursor: "pointer" }}
-      >
-        {task.title || task.text}
-      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+          <span
+            className="todo-item-text"
+            onClick={() => toggleComplete(task)}
+            title="Click to toggle completion"
+            style={{ cursor: "pointer", fontWeight: 600 }}
+          >
+            {task.title || task.text}
+          </span>
+
+          {task.priority && (
+            <span
+              className={`todo-item-priority ${task.priority.toLowerCase()}`}
+              title={`AI Suggested Priority: ${task.priority}`}
+            >
+              {task.priority === "High" ? "🔴 High" : task.priority === "Medium" ? "🟡 Med" : "🟢 Low"}
+            </span>
+          )}
+
+          {task.aiGenerated && (
+            <span
+              style={{
+                fontSize: "10px",
+                color: "#c084fc",
+                background: "rgba(192, 132, 252, 0.15)",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                fontWeight: 600,
+              }}
+              title="Enhanced with AI"
+            >
+              ✨ AI
+            </span>
+          )}
+        </div>
+
+        {task.description && (
+          <span className="todo-item-desc" style={{ marginTop: "4px" }}>
+            {task.description}
+          </span>
+        )}
+
+        {Array.isArray(task.subtasks) && task.subtasks.length > 0 && (
+          <div style={{ marginTop: "6px", fontSize: "11px", color: "#9ca3af" }}>
+            📋 {task.subtasks.length} subtasks planned
+          </div>
+        )}
+      </div>
 
       <span
         className={`status-pill ${task.completed ? "is-success" : "is-warning"}`}
@@ -342,7 +513,7 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
         <div className="todo-heading">
           <h2>📋 Task Management Application</h2>
           <p className="todo-subtitle">
-            Create, track and finish your tasks in one place.
+            Create, track and finish your tasks in one place with AI-powered assistance.
           </p>
         </div>
 
@@ -407,9 +578,28 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={currentUser ? "What needs to be done?" : "Sign in to add a task..."}
+          placeholder={currentUser ? "Enter task title (e.g., 'Prepare quarterly budget presentation')..." : "Sign in to add a task..."}
           disabled={!currentUser}
         />
+        <button
+          type="button"
+          className="btn-ai"
+          onClick={handleAiAssist}
+          disabled={!currentUser || aiLoading || !text.trim()}
+          title="Analyze with AI: Generate description, priority, and deadline"
+        >
+          {aiLoading ? (
+            <>
+              <span className="btn-ai-spinner"></span>
+              <span>Thinking...</span>
+            </>
+          ) : (
+            <>
+              <span>✨</span>
+              <span>AI Assist</span>
+            </>
+          )}
+        </button>
         <button
           className="btn btn-primary"
           onClick={saveTask}
@@ -419,6 +609,81 @@ function Todo({ themeColor = "#8b5cf6", onOpenAuth }) {
           {editId ? "Update" : "Add Task"}
         </button>
       </div>
+
+      {/* Meaningful AI-generated Suggestion Card */}
+      {aiSuggestion && (
+        <div className="todo-ai-card" role="region" aria-label="AI Generated Suggestions">
+          <div className="todo-ai-card-header">
+            <div className="todo-ai-title-wrap">
+              <span>🤖</span>
+              <h4>AI Task Plan: {aiSuggestion.title}</h4>
+            </div>
+            <span className="todo-ai-provider-pill">
+              Powered by {aiSuggestion.provider || "AI"}
+            </span>
+          </div>
+
+          <div className="todo-ai-meta-row">
+            <span className={`todo-ai-badge priority-${(aiSuggestion.priority || 'medium').toLowerCase()}`}>
+              Priority: {aiSuggestion.priority}
+            </span>
+            {aiSuggestion.suggestedDeadline && (
+              <span className="todo-ai-badge deadline">
+                📅 Proposed Deadline: {aiSuggestion.suggestedDeadline}
+              </span>
+            )}
+          </div>
+
+          {aiSuggestion.reasoning && (
+            <div style={{ fontSize: "12px", color: "#a5b4fc", marginBottom: "8px", fontStyle: "italic" }}>
+              💡 Reasoning: {aiSuggestion.reasoning}
+            </div>
+          )}
+
+          {aiSuggestion.description && (
+            <div className="todo-ai-desc">
+              <strong>Description:</strong> {aiSuggestion.description}
+            </div>
+          )}
+
+          {Array.isArray(aiSuggestion.suggestedSubtasks) && aiSuggestion.suggestedSubtasks.length > 0 && (
+            <div>
+              <div className="todo-ai-subtasks-title">Actionable Subtasks Checklist:</div>
+              <ul className="todo-ai-subtasks-list">
+                {aiSuggestion.suggestedSubtasks.map((st, i) => (
+                  <li key={i}>
+                    <span className="todo-ai-subtask-check">✔</span>
+                    <span>{st}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="todo-ai-actions">
+            <button
+              type="button"
+              className="todo-ai-dismiss-btn"
+              onClick={() => setAiSuggestion(null)}
+            >
+              Dismiss
+            </button>
+            <button
+              type="button"
+              className="todo-ai-apply-btn"
+              onClick={applyAiSuggestion}
+            >
+              ✨ Apply & Create Task
+            </button>
+          </div>
+        </div>
+      )}
+
+      {aiNotice && (
+        <div style={{ fontSize: "12px", color: "#fbbf24", margin: "6px 0", background: "rgba(245,158,11,0.1)", padding: "6px 12px", borderRadius: "6px" }}>
+          ℹ️ {aiNotice}
+        </div>
+      )}
 
       {error && (
         <div className="todo-error-message">

@@ -18,12 +18,28 @@ const getTaskById = async (taskId, userId) => {
 
 /**
  * Create a new task associated with the user in MongoDB
+ * Supports both string title and structured object (with description, priority, dueDate, etc.)
  */
-const createTask = async (title, userId) => {
+const createTask = async (taskInput, userId) => {
+  let title;
+  const extra = {};
+
+  if (typeof taskInput === "string") {
+    title = taskInput.trim();
+  } else {
+    title = (taskInput.title || taskInput.text || "").trim();
+    if (taskInput.description !== undefined) extra.description = taskInput.description;
+    if (taskInput.priority !== undefined) extra.priority = taskInput.priority;
+    if (taskInput.dueDate !== undefined) extra.dueDate = taskInput.dueDate;
+    if (taskInput.subtasks !== undefined) extra.subtasks = taskInput.subtasks;
+    if (taskInput.aiGenerated !== undefined) extra.aiGenerated = taskInput.aiGenerated;
+  }
+
   const task = new Task({
-    title: title.trim(),
+    title,
     completed: false,
     user: userId,
+    ...extra,
   });
 
   const savedTask = await task.save();
@@ -33,10 +49,15 @@ const createTask = async (title, userId) => {
 /**
  * Update an existing task belonging to the user
  */
-const updateTask = async (taskId, { title, completed }, userId) => {
+const updateTask = async (taskId, updatePayload, userId) => {
   const updateData = {};
-  if (title !== undefined) updateData.title = title.trim();
-  if (completed !== undefined) updateData.completed = completed;
+  if (updatePayload.title !== undefined) updateData.title = updatePayload.title.trim();
+  if (updatePayload.completed !== undefined) updateData.completed = updatePayload.completed;
+  if (updatePayload.description !== undefined) updateData.description = updatePayload.description;
+  if (updatePayload.priority !== undefined) updateData.priority = updatePayload.priority;
+  if (updatePayload.dueDate !== undefined) updateData.dueDate = updatePayload.dueDate;
+  if (updatePayload.subtasks !== undefined) updateData.subtasks = updatePayload.subtasks;
+  if (updatePayload.aiGenerated !== undefined) updateData.aiGenerated = updatePayload.aiGenerated;
 
   const updatedTask = await Task.findOneAndUpdate(
     { _id: taskId, user: userId },

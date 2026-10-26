@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const taskController = require("../controllers/taskController");
+const aiController = require("../controllers/aiController");
 const authMiddleware = require("../middleware/auth");
 const {
   validateTask,
@@ -14,6 +15,9 @@ router.use(authMiddleware);
 // Practical 9 Caching Debug & Monitoring routes (Must precede /:id parameter route)
 router.get("/cache/stats", taskController.getCacheStats);
 router.post("/cache/clear", taskController.clearCache);
+
+// AI-powered Task Enhancement endpoint
+router.post("/ai-suggest", aiController.analyzeTask);
 
 // Collection routes
 router
